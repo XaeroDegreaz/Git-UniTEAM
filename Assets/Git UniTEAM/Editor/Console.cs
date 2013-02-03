@@ -82,8 +82,8 @@ namespace UniTEAM {
 			
 			GUILayout.BeginHorizontal();
 			
-			GUILayout.Label(commitMessage + commitMessage + commitMessage, GUILayout.Width(updatesRect.width / 2) );
-			GUILayout.Label(commit.Author.Name, GUILayout.Width(updatesRect.width / 4));
+			GUILayout.Label(commitMessage, GUILayout.Width(updatesRect.width / 2) );
+			GUILayout.Label("\t\t"+commit.Author.Name, GUILayout.Width(updatesRect.width / 4));
 			GUILayout.Label(dateString, GUILayout.Width(updatesRect.width / 4));
 			
 			GUILayout.EndHorizontal();

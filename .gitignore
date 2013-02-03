@@ -6,3 +6,5 @@ Assembly-CSharp-vs.csproj
 Library
 Temp
 Git UniTEAM.sln
+/Assembly-CSharp-Editor.pidb
+/Assembly-CSharp.pidb
