@@ -1,0 +1,10 @@
+<linker>
+	
+	<assembly fullname="UnityEngine">
+		<type fullname="UnityEngine.Screen" preserve="all"/>
+	</assembly>
+	
+	<assembly fullname="iGUI" preserve="all">
+	</assembly>
+	
+</linker>
