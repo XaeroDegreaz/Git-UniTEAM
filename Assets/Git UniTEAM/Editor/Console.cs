@@ -35,13 +35,15 @@ namespace UniTEAM {
 		
 		// Update is called once per frame
 		void Update () {
+		}
+		
+		void OnGUI() {
+			
 			float windowWidth = (position.width / 2) - windowPadding;
 			overviewRect = new Rect(windowPadding, 30, windowWidth, 500);
 			updatesRect = new Rect(overviewRect.x + overviewRect.width + windowPadding, overviewRect.y, windowWidth - windowPadding, 250);
 			changesRect = new Rect(updatesRect.x,updatesRect.y + updatesRect.height + windowPadding, windowWidth - windowPadding, 250);
-		}
-		
-		void OnGUI() {
+			
 			GUILayout.BeginHorizontal();
 			GUILayout.Button("Overview");
 			GUILayout.Button("Update");
@@ -68,27 +70,23 @@ namespace UniTEAM {
 		void getUpdatesWindow(int id) {
 			foreach(Commit commit in repo.Head.CurrentCommit.Ancestors) {
 				
-				string commitMessage = commit.Message.Split("\r\n".ToCharArray())[0];
-				
-				System.DateTimeOffset d = commit.CommitDate;
-				string dateString = d.Month+"/"+d.Day+"/"+d.Year+" "+d.Hour+":"+d.Minute+":"+d.Second;
-				
-				GUILayout.BeginHorizontal();
-				
-				GUILayout.Label(commitMessage);
-				GUILayout.Label(commit.Author.Name);
-				GUILayout.Label(dateString);
-				
-				GUILayout.EndHorizontal();
-				
-				GUILayout.BeginHorizontal();
-				
-				GUILayout.Label(commitMessage);
-				GUILayout.Label(commit.Author.Name);
-				GUILayout.Label(dateString);
-				
-				GUILayout.EndHorizontal();
+				getUpdateItem(commit);
 			}
+		}
+		
+		void getUpdateItem(Commit commit) {
+			string commitMessage = commit.Message.Split("\r\n".ToCharArray())[0];
+				
+			System.DateTimeOffset d = commit.CommitDate;
+			string dateString = d.Month+"/"+d.Day+"/"+d.Year+" "+d.Hour+":"+d.Minute+":"+d.Second;
+			
+			GUILayout.BeginHorizontal();
+			
+			GUILayout.Label(commitMessage + commitMessage + commitMessage, GUILayout.Width(updatesRect.width / 2) );
+			GUILayout.Label(commit.Author.Name, GUILayout.Width(updatesRect.width / 4));
+			GUILayout.Label(dateString, GUILayout.Width(updatesRect.width / 4));
+			
+			GUILayout.EndHorizontal();
 		}
 		
 		void getLocalChangesWindow(int id) {
