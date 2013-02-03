@@ -74,11 +74,13 @@ namespace UniTEAM {
 			}
 		}
 		
-		void getUpdateItem(Commit commit) {
-			string commitMessage = commit.Message.Split("\r\n".ToCharArray())[0];
-				
+		void getUpdateItem(Commit commit) {				
 			System.DateTimeOffset d = commit.CommitDate;
-			string dateString = d.Month+"/"+d.Day+"/"+d.Year+" "+d.Hour+":"+d.Minute+":"+d.Second;
+			string commitMessage = commit.Message.Split("\r\n".ToCharArray())[0];
+			string hour = (d.Hour.ToString().Length == 1) ? "0"+d.Hour : d.Hour.ToString();
+			string minute = (d.Minute.ToString().Length == 1) ? "0"+d.Minute : d.Minute.ToString();
+			string second = (d.Second.ToString().Length == 1) ? "0"+d.Second : d.Second.ToString();			
+			string dateString = d.Month+"/"+d.Day+"/"+d.Year+" "+hour+":"+minute+":"+second;
 			
 			GUILayout.BeginHorizontal();
 			
