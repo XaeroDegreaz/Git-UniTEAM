@@ -30,7 +30,7 @@ namespace UniTEAM {
 			
 			lastCommitMessage = new Commit(repo, "HEAD^").Message;
 			
-			Repaint();			
+			Repaint();
 		}
 		
 		// Update is called once per frame
@@ -41,8 +41,15 @@ namespace UniTEAM {
 			
 			float windowWidth = (position.width / 2) - windowPadding;
 			overviewRect = new Rect(windowPadding, 30, windowWidth, 500);
-			updatesRect = new Rect(overviewRect.x + overviewRect.width + windowPadding, overviewRect.y, windowWidth - windowPadding, 250);
-			changesRect = new Rect(updatesRect.x,updatesRect.y + updatesRect.height + windowPadding, windowWidth - windowPadding, 250);
+			
+			updatesRect = new Rect(
+				overviewRect.x + overviewRect.width + windowPadding, 
+				overviewRect.y, 
+				windowWidth - windowPadding, 
+				( overviewRect.height / 2 ) - windowPadding
+			);
+			
+			changesRect = new Rect(updatesRect.x, updatesRect.y + updatesRect.height + (windowPadding * 2), windowWidth - windowPadding, updatesRect.height);
 			
 			GUILayout.BeginHorizontal();
 			GUILayout.Button("Overview");
@@ -69,7 +76,7 @@ namespace UniTEAM {
 		
 		void getUpdatesWindow(int id) {
 			foreach(Commit commit in repo.Head.CurrentCommit.Ancestors) {
-				
+				//GUILayout.Label("Test");
 				getUpdateItem(commit);
 			}
 		}
@@ -79,14 +86,14 @@ namespace UniTEAM {
 			string commitMessage = commit.Message.Split("\r\n".ToCharArray())[0];
 			string hour = (d.Hour.ToString().Length == 1) ? "0"+d.Hour : d.Hour.ToString();
 			string minute = (d.Minute.ToString().Length == 1) ? "0"+d.Minute : d.Minute.ToString();
-			string second = (d.Second.ToString().Length == 1) ? "0"+d.Second : d.Second.ToString();			
+			string second = (d.Second.ToString().Length == 1) ? "0"+d.Second : d.Second.ToString();	
 			string dateString = d.Month+"/"+d.Day+"/"+d.Year+" "+hour+":"+minute+":"+second;
 			
 			GUILayout.BeginHorizontal();
 			
-			GUILayout.Label(commitMessage, GUILayout.Width(updatesRect.width / 2) );
-			GUILayout.Label("\t\t"+commit.Author.Name, GUILayout.Width(updatesRect.width / 4));
-			GUILayout.Label(dateString, GUILayout.Width(updatesRect.width / 4));
+			GUILayout.Label( commitMessage.Substring(0, Mathf.Min( commitMessage.Length, 100) ), GUILayout.Width( ( updatesRect.width / 2f ) - ( windowPadding * 2 ) ) );
+			GUILayout.Label( "\t\t"+commit.Author.Name, GUILayout.Width( ( updatesRect.width / 4f ) - ( windowPadding * 2 ) ) );
+			GUILayout.Label( dateString, GUILayout.Width( ( updatesRect.width / 4f ) - ( windowPadding * 2 ) ) );
 			
 			GUILayout.EndHorizontal();
 		}
