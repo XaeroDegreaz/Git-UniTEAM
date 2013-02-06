@@ -13,14 +13,17 @@ namespace UniTEAM {
 		private string lastCommitMessage;
 		private Repository repo;
 		private Branch branch;
-		private IEnumerable<FetchHead> heads;
-		//private ArrayList heads;
+		private float windowPadding = 5;
+
+		public Rect overviewWindowRect;
+		public Rect updatesOnServerWindowRect;
+		public Rect uncommitedChangesWindowRect;
+		public Rect localStashedCommitsWindowRect;
 		
-		public float windowPadding = 5;
-		public Rect overviewRect;
-		public Rect updatesRect;
-		public Rect changesRect;
-		public Vector2 updatesRectScroll;
+		public Vector2 overviewWindowScroll;
+		public Vector2 updatesOnServerWindowScroll;
+		public Vector2 uncommitedChangesWindowScroll;
+		public Vector2 localStashedCommitsWindowScroll;
 		
 		[MenuItem("Team/Git UniTEAM")]
 		static void init() {
@@ -28,8 +31,6 @@ namespace UniTEAM {
 		}
 		
 		void OnEnable() {
-			//Debug.LogWarning(" Git UniTEAM loaded: "+System.DateTime.Now);
-
 			repo = new Repository( Directory.GetCurrentDirectory() );
 			repo.Fetch( "origin" );
 
@@ -38,22 +39,22 @@ namespace UniTEAM {
 			Repaint();
 		}
 		
-		// Update is called once per frame
 		void Update () {
+
 		}
 		
 		void OnGUI() {
 			float windowWidth = (position.width / 2) - windowPadding;
-			overviewRect = new Rect(windowPadding, 30, windowWidth, 500);
+			overviewWindowRect = new Rect(windowPadding, 30, windowWidth, 500);
 			
-			updatesRect = new Rect(
-				overviewRect.x + overviewRect.width + windowPadding, 
-				overviewRect.y, 
+			updatesOnServerWindowRect = new Rect(
+				overviewWindowRect.x + overviewWindowRect.width + windowPadding, 
+				overviewWindowRect.y, 
 				windowWidth - windowPadding, 
-				( overviewRect.height / 2 ) - windowPadding
+				( overviewWindowRect.height / 2 ) - windowPadding
 			);
 			
-			changesRect = new Rect(updatesRect.x, updatesRect.y + updatesRect.height + (windowPadding * 2), windowWidth - windowPadding, updatesRect.height);
+			localStashedCommitsWindowRect = new Rect(updatesOnServerWindowRect.x, updatesOnServerWindowRect.y + updatesOnServerWindowRect.height + (windowPadding * 2), windowWidth - windowPadding, updatesOnServerWindowRect.height);
 
 			GUILayout.BeginHorizontal();
 			GUILayout.Button("Overview");
@@ -62,39 +63,53 @@ namespace UniTEAM {
 			GUILayout.EndHorizontal();
 			
 			BeginWindows();
-			GUILayout.Window(0, overviewRect, getOverviewWindow, "Overview");
-			GUILayout.Window(1, updatesRect, getUpdatesWindow, "Updates on Server");
-			GUILayout.Window(2, changesRect, getLocalChangesWindow, "Local Changes");
+			GUILayout.Window(0, overviewWindowRect, windowOverview, "Overview");
+			GUILayout.Window(1, updatesOnServerWindowRect, windowUpdatesOnServer, "Updates on Server");
+			GUILayout.Window(2, localStashedCommitsWindowRect, windowLocalStashedCommits, "Local Commit Stash");
 			EndWindows();			
 		}
 		
-		void getOverviewWindow(int id) {
+		private void windowOverview(int id) {
 			GUILayout.Label( "Repository: "+repo.Info.WorkingDirectory );
 			GUILayout.Label( "Remote: " + repo.Remotes["origin"].Url );
 			GUILayout.Label( "Commits Ahead: "+ repo.Head.AheadBy );
 			GUILayout.Label( "Commits Behind: " + repo.Head.BehindBy );
 
-			
-
-			/*foreach ( Commit commit in repo.Commits.QueryBy( new Filter { Since = branch.TrackedBranch, Until = branch.Tip }) ) {
+			foreach ( Commit commit in repo.Commits.QueryBy( new Filter { Since = branch.TrackedBranch, Until = branch.Tip }) ) {
 				CommitItem item = new CommitItem( commit );
 
 				GUILayout.Label( item.dateString );
-			}*/
+			}
 		}
 		
-		void getUpdatesWindow(int id) {
-			updatesRectScroll = GUILayout.BeginScrollView( updatesRectScroll );
-			foreach ( Commit commit in repo.Commits ) {
-				getUpdateItem( commit );
+		private void windowUpdatesOnServer(int id) {
+			updatesOnServerWindowScroll = GUILayout.BeginScrollView( updatesOnServerWindowScroll );
+
+			foreach ( Commit commit in repo.Commits.QueryBy( new Filter { Since = branch.TrackedBranch, Until = branch.Tip } ) ) {
+				getUpdateItem( commit, updatesOnServerWindowRect );
 			}
+
+			GUILayout.EndScrollView();
+		}
+
+		private void windowUncommitedChanges( int id ) {
+			GUILayout.Label( "Uhh.." );
+		}
+
+		private void windowLocalStashedCommits( int id ) {
+			localStashedCommitsWindowScroll = GUILayout.BeginScrollView( localStashedCommitsWindowScroll );
+
+			foreach ( Commit commit in repo.Commits.QueryBy( new Filter { Since = branch.Tip, Until = branch.TrackedBranch } ) ) {
+				getUpdateItem( commit, localStashedCommitsWindowRect );
+			}
+
 			GUILayout.EndScrollView();
 		}
 		
-		void getUpdateItem(Commit commit) {				
+		void getUpdateItem(Commit commit, Rect windowRect) {				
 			CommitItem item = new CommitItem( commit );
 
-			float horizontalWidth = ( updatesRect.width ) - ( windowPadding * 2 ) - 25;
+			float horizontalWidth = ( windowRect.width ) - ( windowPadding * 2 ) - 25;
 			float halfWidth = ( horizontalWidth / 2 ) - ( windowPadding * 2 );
 			float quarterWidth = ( horizontalWidth / 4 ) - ( windowPadding * 2 );
 
@@ -109,10 +124,6 @@ namespace UniTEAM {
 			GUILayout.Label( item.dateString, GUILayout.Width( quarterWidth ) );
 			
 			GUILayout.EndHorizontal();
-		}
-		
-		void getLocalChangesWindow(int id) {
-			GUILayout.Label("Uhh..");
 		}
 	}
 
