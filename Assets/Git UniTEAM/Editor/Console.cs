@@ -148,6 +148,7 @@ namespace UniTEAM {
 		private void windowOverview( int id ) {
 			GUILayout.Label( "Repository: " + repo.Info.WorkingDirectory );
 			GUILayout.Label( "Remote: " + repo.Remotes[ "origin" ].Url );
+			GUILayout.Label( "Current branch: "+branch.Name );
 		}
 
 		private void windowUpdatesOnServer( int id ) {
