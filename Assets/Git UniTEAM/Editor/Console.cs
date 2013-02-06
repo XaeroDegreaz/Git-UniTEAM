@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEditor;
-using GitSharp;
+using LibGit2Sharp;
+using LibGit2Sharp.Core;
+using LibGit2Sharp.Handlers;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 
 namespace UniTEAM {
@@ -9,13 +12,15 @@ namespace UniTEAM {
 		
 		private string lastCommitMessage;
 		private Repository repo;
+		private Branch branch;
+		private IEnumerable<FetchHead> heads;
+		//private ArrayList heads;
 		
 		public float windowPadding = 5;
 		public Rect overviewRect;
 		public Rect updatesRect;
 		public Rect changesRect;
-		
-		public GitSharp.Tree currentTree;
+		public Vector2 updatesRectScroll;
 		
 		[MenuItem("Team/Git UniTEAM")]
 		static void init() {
@@ -23,13 +28,13 @@ namespace UniTEAM {
 		}
 		
 		void OnEnable() {
-			//Debug.LogWarning(" Git UniTEAM loaded: "+System.DateTime.Now+" -> Git: "+Git.Version);
-			
-			repo = new Repository(Directory.GetCurrentDirectory());
-			currentTree = repo.Head.CurrentCommit.Tree;
-			
-			lastCommitMessage = new Commit(repo, "HEAD^").Message;
-			
+			//Debug.LogWarning(" Git UniTEAM loaded: "+System.DateTime.Now);
+
+			repo = new Repository( Directory.GetCurrentDirectory() );
+			repo.Fetch( "origin" );
+
+			branch = repo.Head;
+
 			Repaint();
 		}
 		
@@ -38,7 +43,6 @@ namespace UniTEAM {
 		}
 		
 		void OnGUI() {
-			
 			float windowWidth = (position.width / 2) - windowPadding;
 			overviewRect = new Rect(windowPadding, 30, windowWidth, 500);
 			
@@ -50,7 +54,7 @@ namespace UniTEAM {
 			);
 			
 			changesRect = new Rect(updatesRect.x, updatesRect.y + updatesRect.height + (windowPadding * 2), windowWidth - windowPadding, updatesRect.height);
-			
+
 			GUILayout.BeginHorizontal();
 			GUILayout.Button("Overview");
 			GUILayout.Button("Update");
@@ -65,41 +69,68 @@ namespace UniTEAM {
 		}
 		
 		void getOverviewWindow(int id) {
-			//GUILayout.BeginVertical();
-				
-			foreach(GitSharp.Tree subTree in currentTree.Trees) {
-				GUILayout.Label(subTree.Path);	
-			}
+			GUILayout.Label( "Repository: "+repo.Info.WorkingDirectory );
+			GUILayout.Label( "Remote: " + repo.Remotes["origin"].Url );
+			GUILayout.Label( "Commits Ahead: "+ repo.Head.AheadBy );
+			GUILayout.Label( "Commits Behind: " + repo.Head.BehindBy );
+
 			
-			//GUILayout.EndVertical();
+
+			/*foreach ( Commit commit in repo.Commits.QueryBy( new Filter { Since = branch.TrackedBranch, Until = branch.Tip }) ) {
+				CommitItem item = new CommitItem( commit );
+
+				GUILayout.Label( item.dateString );
+			}*/
 		}
 		
 		void getUpdatesWindow(int id) {
-			foreach(Commit commit in repo.Head.CurrentCommit.Ancestors) {
-				//GUILayout.Label("Test");
-				getUpdateItem(commit);
+			updatesRectScroll = GUILayout.BeginScrollView( updatesRectScroll );
+			foreach ( Commit commit in repo.Commits ) {
+				getUpdateItem( commit );
 			}
+			GUILayout.EndScrollView();
 		}
 		
 		void getUpdateItem(Commit commit) {				
-			System.DateTimeOffset d = commit.CommitDate;
-			string commitMessage = commit.Message.Split("\r\n".ToCharArray())[0];
-			string hour = (d.Hour.ToString().Length == 1) ? "0"+d.Hour : d.Hour.ToString();
-			string minute = (d.Minute.ToString().Length == 1) ? "0"+d.Minute : d.Minute.ToString();
-			string second = (d.Second.ToString().Length == 1) ? "0"+d.Second : d.Second.ToString();	
-			string dateString = d.Month+"/"+d.Day+"/"+d.Year+" "+hour+":"+minute+":"+second;
-			
-			GUILayout.BeginHorizontal();
-			
-			GUILayout.Label( commitMessage.Substring(0, Mathf.Min( commitMessage.Length, 100) ), GUILayout.Width( ( updatesRect.width / 2f ) - ( windowPadding * 2 ) ) );
-			GUILayout.Label( "\t\t"+commit.Author.Name, GUILayout.Width( ( updatesRect.width / 4f ) - ( windowPadding * 2 ) ) );
-			GUILayout.Label( dateString, GUILayout.Width( ( updatesRect.width / 4f ) - ( windowPadding * 2 ) ) );
+			CommitItem item = new CommitItem( commit );
+
+			float horizontalWidth = ( updatesRect.width ) - ( windowPadding * 2 ) - 25;
+			float halfWidth = ( horizontalWidth / 2 ) - ( windowPadding * 2 );
+			float quarterWidth = ( horizontalWidth / 4 ) - ( windowPadding * 2 );
+
+			Rect r = EditorGUILayout.BeginHorizontal( "Button", GUILayout.Width( horizontalWidth ) );
+
+			if ( GUI.Button( r, GUIContent.none ) ) {
+				Debug.Log( "Commit pressed" );
+			}
+
+			GUILayout.Label( item.commitMessage.Substring( 0, Mathf.Min( item.commitMessage.Length, 100 ) ), GUILayout.Width( halfWidth ) );
+			GUILayout.Label( "\t\t" + commit.Author.Name, GUILayout.Width( quarterWidth ) );
+			GUILayout.Label( item.dateString, GUILayout.Width( quarterWidth ) );
 			
 			GUILayout.EndHorizontal();
 		}
 		
 		void getLocalChangesWindow(int id) {
 			GUILayout.Label("Uhh..");
+		}
+	}
+
+	public class CommitItem {
+		private System.DateTimeOffset d;
+		public string commitMessage;
+		private string hour;
+		private string minute;
+		private string second;
+		public string dateString; 
+
+		public CommitItem( Commit commit ) {
+			d = commit.Author.When;
+			commitMessage = commit.Message.Split( "\r\n".ToCharArray() )[ 0 ];
+			hour = ( d.Hour.ToString().Length == 1 ) ? "0" + d.Hour : d.Hour.ToString();
+			minute = ( d.Minute.ToString().Length == 1 ) ? "0" + d.Minute : d.Minute.ToString();
+			second = ( d.Second.ToString().Length == 1 ) ? "0" + d.Second : d.Second.ToString();
+			dateString = d.Month + "/" + d.Day + "/" + d.Year + " " + hour + ":" + minute + ":" + second;
 		}
 	}
 }
