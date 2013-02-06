@@ -12,23 +12,20 @@ namespace UniTEAM {
 	public class Console : EditorWindow {
 
 		private string lastCommitMessage;
-		private Repository repo;
+		public static Repository repo;
 		public Remote remote;
-		private Branch branch;
+		public static Branch branch;
 		public Credentials credentials;
-		private float windowPadding = 5f;
+		private static float windowPadding = 5f;
 		private float nextRefetch = 30f;
-		private bool isFetchComplete;
-
-		public Rect overviewWindowRect;
-		public Rect updatesOnServerWindowRect;
-		public Rect uncommitedChangesWindowRect;
-		public Rect localStashedCommitsWindowRect;
 
 		public Vector2 overviewWindowScroll;
 		public Vector2 updatesOnServerWindowScroll;
 		public Vector2 uncommitedChangesWindowScroll;
 		public Vector2 localStashedCommitsWindowScroll;
+
+		private string selectedRemote;
+		private bool isSelecting = false;
 
 		[MenuItem( "Team/Git UniTEAM" )]
 		static void init() {
@@ -44,49 +41,24 @@ namespace UniTEAM {
 			repo = new Repository( Directory.GetCurrentDirectory() );
 			remote = repo.Remotes[ "origin" ];
 
+			OverviewWindow.selectedRemote = remote.Name;
+
 			fetch();
 		}
 
 		private void fetch() {
-			isFetchComplete = false;
-
-			//Debug.Log( "Fetching..." );
+			FetchHelper.isFetchComplete = false;
 
 			FetchHelper.RemoteFetch( ref remote, ref credentials, this );
 
 			nextRefetch = Time.realtimeSinceStartup + 5f;
-			isFetchComplete = true;
-
 			branch = repo.Head;
 
 			Repaint();
 		}
 
-		public void OnTransferProgress( TransferProgress progress ) {
-			Debug.LogWarning( progress );
-		}
-
-		public int OnUpdateTips( string referenceName, ObjectId oldId, ObjectId newId ) {
-			isFetchComplete = true;
-
-			Debug.LogWarning( referenceName + "/" + oldId + "/" + newId );
-
-			return 0;
-		}
-
-		public int OnCompletion( RemoteCompletionType remoteCompletionType ) {
-			Debug.LogWarning( "Complete" );
-			return 0;
-		}
-
-		public void OnProgress( string serverProgressOutput ) {
-			isFetchComplete = false;
-
-			Debug.LogWarning( serverProgressOutput );
-		}
-
 		void Update() {
-			if ( isFetchComplete ) {
+			if ( FetchHelper.isFetchComplete ) {
 				if ( Time.realtimeSinceStartup >= nextRefetch ) {
 					fetch();
 				}
@@ -94,88 +66,59 @@ namespace UniTEAM {
 		}
 
 		void OnGUI() {
-			float windowWidth = ( position.width / 2 ) - windowPadding;
-			float windowHeight = ( position.height / 2.25f ) - windowPadding;
-
-			overviewWindowRect = new Rect( windowPadding, 30, windowWidth, windowHeight );
-
-			uncommitedChangesWindowRect = new Rect(
-				windowPadding,
-				overviewWindowRect.y + overviewWindowRect.height + ( windowPadding * 2 ),
-				windowWidth,
-				windowHeight - windowPadding
-			);
-
-			updatesOnServerWindowRect = new Rect(
-				overviewWindowRect.x + overviewWindowRect.width + windowPadding,
-				overviewWindowRect.y,
-				windowWidth - windowPadding,
-				windowHeight
-			);
-
-			localStashedCommitsWindowRect = new Rect(
-				updatesOnServerWindowRect.x,
-				updatesOnServerWindowRect.y + updatesOnServerWindowRect.height + ( windowPadding * 2 ),
-				windowWidth - windowPadding,
-				windowHeight - windowPadding
-			);
+			fixWindowRects();
+			
 
 			GUILayout.BeginHorizontal();
 			GUILayout.Button( "Overview" );
 
 			if ( GUILayout.Button( "Update" ) ) {
 				FetchHelper.RemoteFetch( ref remote, ref credentials, this );
-				repo.Checkout( branch.TrackedBranch, CheckoutOptions.None, OnCheckoutProgress );
+				//repo.Checkout( branch.TrackedBranch, CheckoutOptions.None, OnCheckoutProgress );
 			}
 
 			GUILayout.Button( "Commit" );
 			GUILayout.EndHorizontal();
 
 			BeginWindows();
-			GUILayout.Window( 0, overviewWindowRect, windowOverview, "Overview" );
-			GUILayout.Window( 1, uncommitedChangesWindowRect, windowUncommitedChanges, "Uncommited Changes" );
-			GUILayout.Window( 2, updatesOnServerWindowRect, windowUpdatesOnServer,
+			GUILayout.Window( 0, OverviewWindow.rect, OverviewWindow.draw, "Overview" );
+			GUILayout.Window( 1, UncommitedChangesWindow.rect, UncommitedChangesWindow.draw, "Uncommited Changes" );
+			GUILayout.Window( 2, UpdatesOnServerWindow.rect, UpdatesOnServerWindow.draw,
 							  "Updates on Server [Commits Behind: " + repo.Head.BehindBy + "]" );
-			GUILayout.Window( 3, localStashedCommitsWindowRect, windowLocalStashedCommits,
+			GUILayout.Window( 3, LocalStashedCommitsWindow.rect, LocalStashedCommitsWindow.draw,
 							  "Local Commit Stash [Commits Ahead: " + repo.Head.AheadBy + "]" );
 			EndWindows();
 		}
 
-		private void OnCheckoutProgress( string path, int completedSteps, int totalSteps ) {
-			Debug.LogWarning( path + "/" + completedSteps + "/" + totalSteps );
+		private void fixWindowRects() {
+			float windowWidth = ( position.width / 2 ) - windowPadding;
+			float windowHeight = ( position.height / 2.25f ) - windowPadding;
+
+			OverviewWindow.rect = new Rect( windowPadding, 30, windowWidth, windowHeight );
+
+			UncommitedChangesWindow.rect = new Rect(
+				windowPadding,
+				OverviewWindow.rect.y + OverviewWindow.rect.height + ( windowPadding * 2 ),
+				windowWidth,
+				windowHeight - windowPadding
+			);
+
+			UpdatesOnServerWindow.rect = new Rect(
+				OverviewWindow.rect.x + OverviewWindow.rect.width + windowPadding,
+				OverviewWindow.rect.y,
+				windowWidth - windowPadding,
+				windowHeight
+			);
+
+			LocalStashedCommitsWindow.rect = new Rect(
+				UpdatesOnServerWindow.rect.x,
+				UpdatesOnServerWindow.rect.y + UpdatesOnServerWindow.rect.height + ( windowPadding * 2 ),
+				windowWidth - windowPadding,
+				windowHeight - windowPadding
+			);
 		}
 
-		private void windowOverview( int id ) {
-			GUILayout.Label( "Repository: " + repo.Info.WorkingDirectory );
-			GUILayout.Label( "Remote: " + repo.Remotes[ "origin" ].Url );
-			GUILayout.Label( "Current branch: "+branch.Name );
-		}
-
-		private void windowUpdatesOnServer( int id ) {
-			updatesOnServerWindowScroll = GUILayout.BeginScrollView( updatesOnServerWindowScroll );
-
-			foreach ( Commit commit in repo.Commits.QueryBy( new Filter { Since = branch.TrackedBranch, Until = branch.Tip } ) ) {
-				getUpdateItem( commit, updatesOnServerWindowRect );
-			}
-
-			GUILayout.EndScrollView();
-		}
-
-		private void windowUncommitedChanges( int id ) {
-			GUILayout.Label( "Uhh.." );
-		}
-
-		private void windowLocalStashedCommits( int id ) {
-			localStashedCommitsWindowScroll = GUILayout.BeginScrollView( localStashedCommitsWindowScroll );
-
-			foreach ( Commit commit in repo.Commits.QueryBy( new Filter { Since = branch.Tip, Until = branch.TrackedBranch } ) ) {
-				getUpdateItem( commit, localStashedCommitsWindowRect );
-			}
-
-			GUILayout.EndScrollView();
-		}
-
-		void getUpdateItem( Commit commit, Rect windowRect ) {
+		public static void getUpdateItem( Commit commit, Rect windowRect ) {
 			CommitItem item = new CommitItem( commit );
 
 			float horizontalWidth = ( windowRect.width ) - ( windowPadding * 2 ) - 25;
@@ -196,22 +139,4 @@ namespace UniTEAM {
 		}
 	}
 
-	public class CommitItem {
-		private System.DateTimeOffset d;
-		public string commitMessage;
-		private string hour;
-		private string minute;
-		private string second;
-		public string dateString;
-		private Remote remote;
-		private Credentials credentials;
-		public CommitItem( Commit commit ) {
-			d = commit.Author.When;
-			commitMessage = commit.Message.Split( "\r\n".ToCharArray() )[ 0 ];
-			hour = ( d.Hour.ToString().Length == 1 ) ? "0" + d.Hour : d.Hour.ToString();
-			minute = ( d.Minute.ToString().Length == 1 ) ? "0" + d.Minute : d.Minute.ToString();
-			second = ( d.Second.ToString().Length == 1 ) ? "0" + d.Second : d.Second.ToString();
-			dateString = d.Month + "/" + d.Day + "/" + d.Year + " " + hour + ":" + minute + ":" + second;
-		}
-	}
 }
