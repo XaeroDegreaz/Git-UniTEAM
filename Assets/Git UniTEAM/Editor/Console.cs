@@ -13,7 +13,9 @@ namespace UniTEAM {
 		
 		private string lastCommitMessage;
 		private Repository repo;
+		public Remote remote;
 		private Branch branch;
+		public Credentials credentials;
 		private float windowPadding = 5f;
 		private float nextRefetch = 5f;
 		private bool isFetchComplete;
@@ -30,11 +32,18 @@ namespace UniTEAM {
 		
 		[MenuItem("Team/Git UniTEAM")]
 		static void init() {
-			EditorWindow.GetWindow(typeof(Console), false, "UniTEAM");
+			//CreateInstance<Console>();
+			EditorWindow.GetWindow( typeof ( UniTEAM.Console ), false, "UniTEAM" );
 		}
 		
 		void OnEnable() {
+			credentials = new Credentials();
+			credentials.Username = "xaerodegreaz";
+			credentials.Password = "!!11OBywan";
+
 			repo = new Repository( Directory.GetCurrentDirectory() );
+			remote = repo.Remotes[ "origin" ];
+
 			fetch();
 		}
 
@@ -43,24 +52,21 @@ namespace UniTEAM {
 
 			Debug.Log( "Fetching..." );
 
-			try {
-				repo.Fetch( "origin", TagFetchMode.Auto, OnProgress, OnCompletion, OnUpdateTips, OnTransferProgress );
-				nextRefetch = Time.realtimeSinceStartup + 5f;
-				isFetchComplete = true;
-			} catch ( System.Exception e ) {
-				Debug.LogError( e );
-			}
+			FetchHelper.RemoteFetch( ref remote, ref credentials, this );
+		
+			nextRefetch = Time.realtimeSinceStartup + 5f;
+			isFetchComplete = true;
 
 			branch = repo.Head;
 
 			Repaint();
 		}
 
-		private void OnTransferProgress( TransferProgress progress ) {
+		public void OnTransferProgress( TransferProgress progress ) {
 			Debug.LogWarning( progress );
 		}
 
-		private int OnUpdateTips( string referenceName, ObjectId oldId, ObjectId newId ) {
+		public int OnUpdateTips( string referenceName, ObjectId oldId, ObjectId newId ) {
 			isFetchComplete = true;
 
 			Debug.LogWarning( referenceName + "/" + oldId + "/" + newId );
@@ -68,12 +74,12 @@ namespace UniTEAM {
 			return 0;
 		}
 
-		private int OnCompletion( RemoteCompletionType remoteCompletionType ) {
+		public int OnCompletion( RemoteCompletionType remoteCompletionType ) {
 			Debug.LogWarning( "Complete" );
 			return 0;
 		}
 
-		private void OnProgress( string serverProgressOutput ) {
+		public void OnProgress( string serverProgressOutput ) {
 			isFetchComplete = false;
 
 			Debug.LogWarning( serverProgressOutput );
@@ -132,7 +138,7 @@ namespace UniTEAM {
 		
 		private void windowOverview(int id) {
 			GUILayout.Label( "Repository: "+repo.Info.WorkingDirectory );
-			GUILayout.Label( "Remote: " + repo.Remotes["origin"].Url );
+			GUILayout.Label( "Remote: " + repo.Remotes[ "origin" ].Url );
 		}
 		
 		private void windowUpdatesOnServer(int id) {
@@ -186,8 +192,9 @@ namespace UniTEAM {
 		private string hour;
 		private string minute;
 		private string second;
-		public string dateString; 
-
+		public string dateString;
+		private Remote remote;
+		private Credentials credentials;
 		public CommitItem( Commit commit ) {
 			d = commit.Author.When;
 			commitMessage = commit.Message.Split( "\r\n".ToCharArray() )[ 0 ];
