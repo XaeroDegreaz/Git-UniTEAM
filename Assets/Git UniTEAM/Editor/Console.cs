@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEditor;
 using LibGit2Sharp;
@@ -32,29 +33,66 @@ namespace UniTEAM {
 		
 		void OnEnable() {
 			repo = new Repository( Directory.GetCurrentDirectory() );
-			repo.Fetch( "origin" );
+			try {
+				repo.Fetch( "origin", TagFetchMode.Auto, OnProgress, OnCompletion, OnUpdateTips, OnTransferProgress );
+			} catch ( System.Exception e ) {
+				Debug.LogError( e );
+			}
 
 			branch = repo.Head;
 
 			Repaint();
 		}
-		
+
+		private void OnTransferProgress( TransferProgress progress ) {
+			Debug.LogWarning( progress );
+		}
+
+		private int OnUpdateTips( string referenceName, ObjectId oldId, ObjectId newId ) {
+			Debug.LogWarning( referenceName + "/" + oldId + "/" + newId );
+
+			return 0;
+		}
+
+		private int OnCompletion( RemoteCompletionType remoteCompletionType ) {
+			Debug.LogWarning( remoteCompletionType );
+			return 0;
+		}
+
+		private void OnProgress( string serverProgressOutput ) {
+			Debug.LogWarning( serverProgressOutput );
+		}
+
 		void Update () {
 
 		}
 		
 		void OnGUI() {
 			float windowWidth = (position.width / 2) - windowPadding;
-			overviewWindowRect = new Rect(windowPadding, 30, windowWidth, 500);
+			float windowHeight = ( position.height / 2.25f ) - windowPadding;
+
+			overviewWindowRect = new Rect(windowPadding, 30, windowWidth, windowHeight);
+
+			uncommitedChangesWindowRect = new Rect(
+				windowPadding,
+				overviewWindowRect.y + overviewWindowRect.height + ( windowPadding * 2 ),
+				windowWidth,
+				windowHeight - windowPadding
+			);
 			
 			updatesOnServerWindowRect = new Rect(
 				overviewWindowRect.x + overviewWindowRect.width + windowPadding, 
 				overviewWindowRect.y, 
 				windowWidth - windowPadding, 
-				( overviewWindowRect.height / 2 ) - windowPadding
+				windowHeight
 			);
 			
-			localStashedCommitsWindowRect = new Rect(updatesOnServerWindowRect.x, updatesOnServerWindowRect.y + updatesOnServerWindowRect.height + (windowPadding * 2), windowWidth - windowPadding, updatesOnServerWindowRect.height);
+			localStashedCommitsWindowRect = new Rect(
+				updatesOnServerWindowRect.x,
+				updatesOnServerWindowRect.y + updatesOnServerWindowRect.height + (windowPadding * 2),
+				windowWidth - windowPadding,
+				windowHeight - windowPadding
+			);
 
 			GUILayout.BeginHorizontal();
 			GUILayout.Button("Overview");
@@ -63,23 +101,18 @@ namespace UniTEAM {
 			GUILayout.EndHorizontal();
 			
 			BeginWindows();
-			GUILayout.Window(0, overviewWindowRect, windowOverview, "Overview");
-			GUILayout.Window(1, updatesOnServerWindowRect, windowUpdatesOnServer, "Updates on Server");
-			GUILayout.Window(2, localStashedCommitsWindowRect, windowLocalStashedCommits, "Local Commit Stash");
+			GUILayout.Window( 0, overviewWindowRect, windowOverview, "Overview" );
+			GUILayout.Window( 1, uncommitedChangesWindowRect, windowUncommitedChanges, "Uncommited Changes" );
+			GUILayout.Window( 2, updatesOnServerWindowRect, windowUpdatesOnServer,
+			                  "Updates on Server [Commits Behind: " + repo.Head.BehindBy + "]" );
+			GUILayout.Window( 3, localStashedCommitsWindowRect, windowLocalStashedCommits,
+			                  "Local Commit Stash [Commits Ahead: " + repo.Head.AheadBy + "]" );
 			EndWindows();			
 		}
 		
 		private void windowOverview(int id) {
 			GUILayout.Label( "Repository: "+repo.Info.WorkingDirectory );
 			GUILayout.Label( "Remote: " + repo.Remotes["origin"].Url );
-			GUILayout.Label( "Commits Ahead: "+ repo.Head.AheadBy );
-			GUILayout.Label( "Commits Behind: " + repo.Head.BehindBy );
-
-			foreach ( Commit commit in repo.Commits.QueryBy( new Filter { Since = branch.TrackedBranch, Until = branch.Tip }) ) {
-				CommitItem item = new CommitItem( commit );
-
-				GUILayout.Label( item.dateString );
-			}
 		}
 		
 		private void windowUpdatesOnServer(int id) {
