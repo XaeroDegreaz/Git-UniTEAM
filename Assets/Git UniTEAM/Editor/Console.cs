@@ -14,7 +14,9 @@ namespace UniTEAM {
 		private string lastCommitMessage;
 		private Repository repo;
 		private Branch branch;
-		private float windowPadding = 5;
+		private float windowPadding = 5f;
+		private float nextRefetch = 5f;
+		private bool isFetchComplete;
 
 		public Rect overviewWindowRect;
 		public Rect updatesOnServerWindowRect;
@@ -33,8 +35,18 @@ namespace UniTEAM {
 		
 		void OnEnable() {
 			repo = new Repository( Directory.GetCurrentDirectory() );
+			fetch();
+		}
+
+		private void fetch() {
+			isFetchComplete = false;
+
+			Debug.Log( "Fetching..." );
+
 			try {
 				repo.Fetch( "origin", TagFetchMode.Auto, OnProgress, OnCompletion, OnUpdateTips, OnTransferProgress );
+				nextRefetch = Time.realtimeSinceStartup + 5f;
+				isFetchComplete = true;
 			} catch ( System.Exception e ) {
 				Debug.LogError( e );
 			}
@@ -49,22 +61,30 @@ namespace UniTEAM {
 		}
 
 		private int OnUpdateTips( string referenceName, ObjectId oldId, ObjectId newId ) {
-			Debug.LogWarning( referenceName + "/" + oldId + "/" + newId );
+			isFetchComplete = true;
 
+			Debug.LogWarning( referenceName + "/" + oldId + "/" + newId );
+			
 			return 0;
 		}
 
 		private int OnCompletion( RemoteCompletionType remoteCompletionType ) {
-			Debug.LogWarning( remoteCompletionType );
+			Debug.LogWarning( "Complete" );
 			return 0;
 		}
 
 		private void OnProgress( string serverProgressOutput ) {
+			isFetchComplete = false;
+
 			Debug.LogWarning( serverProgressOutput );
 		}
 
 		void Update () {
-
+			if ( isFetchComplete ) {
+				if ( Time.realtimeSinceStartup >= nextRefetch ) {
+					fetch();
+				}
+			}
 		}
 		
 		void OnGUI() {
