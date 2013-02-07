@@ -48,7 +48,7 @@ namespace UniTEAM {
 
 		private void fetch() {
 			FetchHelper.isFetchComplete = false;
-
+			UncommitedChangesWindow.changes = Console.repo.Diff.Compare();
 			FetchHelper.RemoteFetch( ref remote, ref credentials, this );
 
 			nextRefetch = Time.realtimeSinceStartup + 5f;
@@ -67,7 +67,6 @@ namespace UniTEAM {
 
 		void OnGUI() {
 			fixWindowRects();
-			
 
 			GUILayout.BeginHorizontal();
 			GUILayout.Button( "Overview" );

@@ -32,11 +32,14 @@ namespace UniTEAM {
 			}
 
 			if ( isSelecting ) {
+				int i = 0;
 				foreach ( Remote b in Console.repo.Remotes ) {
-					if ( GUILayout.Button( b.Name ) ) {
+					if ( GUI.Button( new Rect(0, 30 + (i*30), 20, 20), b.Name  ) ) {
 						selectedRemote = b.Name;
 						isSelecting = false;
 					}
+
+					i++;
 				}
 			}
 			GUILayout.EndHorizontal();
