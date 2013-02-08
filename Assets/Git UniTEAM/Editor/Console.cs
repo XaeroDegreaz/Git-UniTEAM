@@ -87,8 +87,7 @@ namespace UniTEAM {
 
 
 			if ( GUILayout.Button( "Push Stashed Commits" ) ) {
-				repo.Network.Push( remote, remote.Url );
-				NetworkExtensions.Push( repo.Network, remote, "E" );
+				repo.Network.Push( remote, "refs/heads/master:refs/heads/master", OnPushStatusError, credentials );
 			}
 
 			GUILayout.EndHorizontal();
@@ -106,6 +105,10 @@ namespace UniTEAM {
 			}
 			
 			EndWindows();
+		}
+
+		private void OnPushStatusError( PushStatusError pushStatusErrors ) {
+			Debug.LogError( pushStatusErrors );
 		}
 
 		public static string currentError = string.Empty;
