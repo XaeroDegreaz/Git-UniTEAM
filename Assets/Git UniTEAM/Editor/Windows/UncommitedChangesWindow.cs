@@ -45,10 +45,16 @@ namespace UniTEAM {
 		}
 
 		public static void reset(TreeChanges newChanges) {
-			pathNodes.Clear();
+			changes = newChanges;
+
+			//# If anything evaluates true here, this means someone is currently working in the commit window, and
+			//# we don't want to interrupt their changes.
+			if ( checkboxValues.ContainsValue( false ) || foldoutValues.ContainsValue( false ) || commitText.Trim().Length > 0 ) {
+				return;
+			}
+
 			checkboxValues.Clear();
 			foldoutValues.Clear();
-			changes = newChanges;
 		}
 
 		public static void draw( int i ) {
