@@ -35,7 +35,9 @@ namespace UniTEAM {
 			EditorWindow.GetWindow( typeof( UniTEAM.Console ), false, "UniTEAM" );
 		}
 
+		public static Console instance;
 		void OnEnable() {
+			instance = this;
 			credentials = new Credentials();
 			credentials.Username = "xaerodegreaz";
 			credentials.Password = "!!11OBywan";
@@ -48,10 +50,10 @@ namespace UniTEAM {
 			fetch();
 		}
 
-		private void fetch() {
+		public void fetch() {
 			FetchHelper.isFetchComplete = false;
-			UncommitedChangesWindow.changes = Console.repo.Diff.Compare();
 			FetchHelper.RemoteFetch( ref remote, ref credentials, this );
+			UncommitedChangesWindow.reset( repo.Diff.Compare() );
 
 			nextRefetch = Time.realtimeSinceStartup + 5f;
 			branch = repo.Head;

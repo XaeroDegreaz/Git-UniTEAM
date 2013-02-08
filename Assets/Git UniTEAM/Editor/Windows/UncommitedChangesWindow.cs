@@ -43,6 +43,12 @@ namespace UniTEAM {
 			noStyle.normal.background = noTexture;
 		}
 
+		public static void reset(TreeChanges newChanges) {
+			pathNodes.Clear();
+			checkboxValues.Clear();
+			foldoutValues.Clear();
+			changes = newChanges;
+		}
 
 		public static void draw( int i ) {
 			bool highlight = true;
@@ -63,6 +69,7 @@ namespace UniTEAM {
 				Signature signature = new Signature( "Jerome Doby", "xaerodegreaz@gmail.com", System.DateTimeOffset.Now );
 
 				Console.repo.Commit( commitText, signature );
+				Console.instance.fetch();
 
 				commitText = string.Empty;
 			}
