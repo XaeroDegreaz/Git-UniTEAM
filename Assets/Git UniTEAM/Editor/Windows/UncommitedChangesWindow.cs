@@ -21,7 +21,6 @@ namespace UniTEAM {
 		private static GUIStyle noStyle;
 		private static Texture2D highlightTexture;
 		private static Texture2D noTexture;
-		private static UncommitedChangesWindow instance;
 
 		public static TreeChanges changes;
 		public static Rect rect;
@@ -29,7 +28,6 @@ namespace UniTEAM {
 		public static string commitText = string.Empty;
 
 		public UncommitedChangesWindow(  ) {
-			instance = this;
 
 			highlightTexture = getGenericTexture( 1, 1, new Color( 71f / 255f, 71f / 255f, 71f / 255f ) );
 			noTexture = getGenericTexture( 1, 1, new Color( 46f / 255f, 46f / 255f, 46f / 255f ) );

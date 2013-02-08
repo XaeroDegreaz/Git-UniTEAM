@@ -28,7 +28,6 @@ namespace UniTEAM {
 		public UncommitedChangesWindow uncommitedChangesWindow;
 
 		private string selectedRemote;
-		private bool isSelecting = false;
 
 		[MenuItem( "Team/Git UniTEAM" )]
 		static void init() {
