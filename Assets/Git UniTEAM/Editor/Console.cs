@@ -24,6 +24,8 @@ namespace UniTEAM {
 		public Vector2 uncommitedChangesWindowScroll;
 		public Vector2 localStashedCommitsWindowScroll;
 
+		public UncommitedChangesWindow uncommitedChangesWindow;
+
 		private string selectedRemote;
 		private bool isSelecting = false;
 
@@ -66,6 +68,12 @@ namespace UniTEAM {
 		}
 
 		void OnGUI() {
+			//# Create new instances so we can instantia the guiskin stuff once and only once
+			//# reducing the amount of function calls during ongui
+			if ( uncommitedChangesWindow == null ) {
+				uncommitedChangesWindow = new UncommitedChangesWindow();
+			}
+
 			fixWindowRects();
 
 			GUILayout.BeginHorizontal();
@@ -73,10 +81,13 @@ namespace UniTEAM {
 
 			if ( GUILayout.Button( "Update" ) ) {
 				FetchHelper.RemoteFetch( ref remote, ref credentials, this );
-				//repo.Checkout( branch.TrackedBranch, CheckoutOptions.None, OnCheckoutProgress );
 			}
 
-			GUILayout.Button( "Commit" );
+
+			if ( GUILayout.Button( "Commit" ) ) {
+				
+			}
+
 			GUILayout.EndHorizontal();
 
 			BeginWindows();

@@ -11,67 +11,107 @@ using System.IO;
 namespace UniTEAM {
 	public class UncommitedChangesWindow {
 
+		
+		private static List<string> pathNodes = new List<string>();
+		private static Dictionary<string, bool> checkboxValues = new Dictionary<string, bool>();
+		private static Dictionary<string, bool> foldoutValues = new Dictionary<string, bool>();
+		private static GUIStyle statusStyle;
+		private static GUIStyle highlightStyle;
+		private static GUIStyle noStyle;
+		private static Texture2D highlightTexture;
+		private static Texture2D noTexture;
+		private static UncommitedChangesWindow instance;
+
+		public static TreeChanges changes;
 		public static Rect rect;
 		public static Vector2 scroll;
-		public static List<string> pathNodes = new List<string>();
-		public static TreeChanges changes;
-		public static GUIStyle statusStyle;
-		public static GUIStyle highlightStyle;
-		private static GUIStyle noStyle;
+		public static string commitText = string.Empty;
 
-		private static Texture2D highlightTexture = getGenericTexture( 1, 1, new Color( 71f / 255f, 71f / 255f, 71f / 255f ) );
-		private static Texture2D noTexture = getGenericTexture( 1, 1, new Color( 46f / 255f, 46f / 255f, 46f / 255f ) );
+		public UncommitedChangesWindow(  ) {
+			instance = this;
+
+			highlightTexture = getGenericTexture( 1, 1, new Color( 71f / 255f, 71f / 255f, 71f / 255f ) );
+			noTexture = getGenericTexture( 1, 1, new Color( 46f / 255f, 46f / 255f, 46f / 255f ) );
+
+			statusStyle = new GUIStyle( "Label" );
+			statusStyle.alignment = TextAnchor.LowerRight;
+
+			highlightStyle = new GUIStyle( "Label" );
+			highlightStyle.normal.background = highlightTexture;
+
+			noStyle = new GUIStyle( "Label" );
+			noStyle.normal.background = noTexture;
+		}
+
 
 		public static void draw( int i ) {
 			bool highlight = true;
-
-			statusStyle = new GUIStyle( GUI.skin.label );
-			statusStyle.alignment = TextAnchor.LowerRight;
-
-			highlightStyle = new GUIStyle( GUI.skin.box );
-			highlightStyle.normal.background = highlightTexture;
-
-			noStyle = new GUIStyle( GUI.skin.box );
-			noStyle.normal.background = noTexture;
-
 			pathNodes.Clear();
 
 			scroll = GUILayout.BeginScrollView( scroll );
+
 			foreach ( TreeEntryChanges change in changes ) {
 				recurseToAssetFolder( change, ref highlight );
 			}
+
+			GUI.enabled = true;
 			GUILayout.EndScrollView();
 
-			GUI.skin.label.padding = new RectOffset( 0, 0, 0, 0 );
+			GUILayout.BeginHorizontal(  );
+			commitText = GUILayout.TextField( commitText );
+			if ( GUILayout.Button( "Commit Changes" ) ) {
+				Signature signature = new Signature( "Jerome Doby", "xaerodegreaz@gmail.com", System.DateTimeOffset.Now );
+
+				Console.repo.Commit( commitText, signature );
+
+				commitText = string.Empty;
+			}
+			GUILayout.EndHorizontal();
 		}
 
 		private static void recurseToAssetFolder( TreeEntryChanges change, ref bool highlight) {
 			int spacing = 20;
+			bool iterationIsDir = false;
 			string[] pathArray = change.Path.Split( "\\".ToCharArray() );
 
 			for ( int i = 0; i < pathArray.Length; i++ ) {
 
-				if ( pathNodes.Contains( pathArray[ i ] ) ) {
-					
+				if ( pathNodes.Contains( pathArray[ i ] ) || !GUI.enabled) {
 					continue;
 				}
 
 				highlight = !highlight;
-	
+
+				EditorGUILayout.BeginHorizontal( ( highlight ) ? highlightStyle : noStyle );
+
 				//# This must be a directory...
 				if ( i < pathArray.Length - 1 ) {
-					pathNodes.Add( pathArray[i] );
+					pathNodes.Add( pathArray[ i ] );
+
+					if ( !foldoutValues.ContainsKey( pathArray[ i ] ) ) {
+						foldoutValues.Add( pathArray[ i ], true );
+					}
+					
+					iterationIsDir = true;
+				} else {
+					iterationIsDir = false;
 				}
 
-				GUI.skin.label.padding = new RectOffset( i * spacing, 0, 0, 0 );
+				if ( !checkboxValues.ContainsKey( change.Path ) ) {
+					checkboxValues.Add( change.Path, true );
+				}
 
-				GUILayout.BeginHorizontal( (highlight) ? highlightStyle : noStyle );
+				GUILayout.Space( i * spacing );
 
-				string child = ( i > 0 ) ? "^  " : "";
+				if ( !iterationIsDir ) {
+					checkboxValues[ change.Path ] = GUILayout.Toggle( checkboxValues[ change.Path ], pathArray[ i ] );
+					GUILayout.Label( "[" + change.Status + "]", statusStyle );
+				} else {
+					foldoutValues[ pathArray[ i ] ] = EditorGUILayout.Foldout( foldoutValues[ pathArray[ i ] ], pathArray[ i ] );
+					GUI.enabled = foldoutValues[ pathArray[ i ] ];
+				}
 
-				GUILayout.Label( child + pathArray[ i ] );
-				GUILayout.Label("[" + change.Status + "]", statusStyle);
-				GUILayout.EndHorizontal();
+				EditorGUILayout.EndHorizontal();
 			}
 		}
 

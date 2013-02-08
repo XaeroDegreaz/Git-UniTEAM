@@ -17,10 +17,10 @@ namespace UniTEAM {
 		public static void draw( int id ) {
 			GUILayout.Label( "Repository: " + Console.repo.Info.WorkingDirectory );
 
-			GUILayout.BeginHorizontal();
-			GUILayout.Label( "Remote: " + Console.repo.Remotes[ "origin" ].Url );
-			getRemoteList();
-			GUILayout.EndHorizontal();
+			//GUILayout.BeginHorizontal();
+			//GUILayout.Label( "Remote: " + Console.repo.Remotes[ "origin" ].Url );
+			//getRemoteList();
+			//GUILayout.EndHorizontal();
 
 			GUILayout.Label( "Current branch: " + Console.branch.Name );
 		}
