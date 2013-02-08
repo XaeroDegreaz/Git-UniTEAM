@@ -111,7 +111,7 @@ namespace UniTEAM {
 
 		private static void errorWindow( int i ) {
 			GUILayout.Label( currentError );
-			if ( GUILayout.Button( "Close" ) ) {
+			if ( GUI.Button( new Rect(0,currentErrorLocation.height - 20, currentErrorLocation.width, 20), "Close" ) ) {
 				currentError = string.Empty;
 			}
 		}

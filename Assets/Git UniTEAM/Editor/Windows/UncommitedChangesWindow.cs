@@ -19,8 +19,9 @@ namespace UniTEAM {
 		private static GUIStyle statusStyle;
 		private static GUIStyle highlightStyle;
 		private static GUIStyle noStyle;
-		private static Texture2D highlightTexture;
-		private static Texture2D noTexture;
+
+		private Texture2D highlightTexture;
+		private Texture2D noTexture;
 
 		public static TreeChanges changes;
 		public static Rect rect;
@@ -32,7 +33,7 @@ namespace UniTEAM {
 			highlightTexture = getGenericTexture( 1, 1, new Color( 71f / 255f, 71f / 255f, 71f / 255f ) );
 			noTexture = getGenericTexture( 1, 1, new Color( 46f / 255f, 46f / 255f, 46f / 255f ) );
 
-			highlightTexture.hideFlags = HideFlags.HideAndDontSave;
+			highlightTexture.hideFlags = HideFlags.NotEditable;
 
 			statusStyle = new GUIStyle( "Label" );
 			statusStyle.alignment = TextAnchor.LowerRight;
@@ -70,8 +71,8 @@ namespace UniTEAM {
 			GUI.enabled = true;
 			GUILayout.EndScrollView();
 
-			//GUILayout.BeginHorizontal(  );
-			commitText = GUILayout.TextField( commitText );
+			GUILayout.Label( "Commit message:" );
+			commitText = GUILayout.TextArea( commitText );
 			if ( GUILayout.Button( "Commit Changes" ) ) {
 				Signature signature = new Signature( "Jerome Doby", "xaerodegreaz@gmail.com", System.DateTimeOffset.Now );
 
@@ -102,7 +103,7 @@ namespace UniTEAM {
 
 				commitText = string.Empty;
 			}
-			//GUILayout.EndHorizontal();
+			
 		}
 
 		private static void recurseToAssetFolder( TreeEntryChanges change, ref bool highlight) {
