@@ -37,7 +37,7 @@ namespace UniTEAM {
 		public static int OnUpdateTips( string referenceName, ObjectId oldId, ObjectId newId ) {
 			isFetchComplete = true;
 
-			Debug.LogWarning( referenceName + "/" + oldId + "/" + newId );
+			Debug.LogWarning("Tips updated!"+ referenceName + "/" + oldId + "/" + newId );
 
 			return 0;
 		}
