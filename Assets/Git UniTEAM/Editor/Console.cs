@@ -87,8 +87,9 @@ namespace UniTEAM {
 			}
 
 
-			if ( GUILayout.Button( "Commit" ) ) {
-				
+			if ( GUILayout.Button( "Push Stashed Commits" ) ) {
+				repo.Network.Push( remote, remote.Url );
+				NetworkExtensions.Push( repo.Network, remote, "E" );
 			}
 
 			GUILayout.EndHorizontal();
