@@ -12,10 +12,6 @@ namespace UniTEAM {
 	public class Console : EditorWindow {
 
 		private string lastCommitMessage;
-		public static Repository repo;
-		public Remote remote;
-		public static Branch branch;
-		public Credentials credentials;
 		private static float windowPadding = 5f;
 		private float nextRefetch = 30f;
 		private float refetchFrequency = 30f;
@@ -26,8 +22,10 @@ namespace UniTEAM {
 		public Vector2 localStashedCommitsWindowScroll;
 
 		public UncommitedChangesWindow uncommitedChangesWindow;
-
-		private string selectedRemote;
+		public static Repository repo;
+		public Remote remote;
+		public static Branch branch;
+		public Credentials credentials;
 
 		[MenuItem( "Team/Git UniTEAM" )]
 		static void init() {
