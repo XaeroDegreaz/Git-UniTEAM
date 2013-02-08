@@ -107,7 +107,7 @@
         </member>
         <member name="F:LibGit2Sharp.GitObject.repo">
             <summary>
-              The <see cref="T:LibGit2Sharp.Repository"/> containing the object. 
+              The <see cref="T:LibGit2Sharp.Repository"/> containing the object.
             </summary>
         </member>
         <member name="M:LibGit2Sharp.GitObject.#ctor">
@@ -606,7 +606,7 @@
               Needed for mocking purposes.
             </summary>
         </member>
-        <member name="M:LibGit2Sharp.Network.Push(LibGit2Sharp.Remote,System.String,System.String,LibGit2Sharp.Handlers.PushStatusErrorHandler)">
+        <member name="M:LibGit2Sharp.Network.Push(LibGit2Sharp.Remote,System.String,System.String,LibGit2Sharp.Handlers.PushStatusErrorHandler,LibGit2Sharp.Credentials)">
             <summary>
               Push the objectish to the destination reference on the <see cref="T:LibGit2Sharp.Remote"/>.
             </summary>
@@ -615,7 +615,7 @@
             <param name="destinationSpec">The reference to update on the remote.</param>
             <param name="onPushStatusError">Handler for reporting failed push updates.</param>
         </member>
-        <member name="M:LibGit2Sharp.Network.Push(LibGit2Sharp.Remote,System.String,LibGit2Sharp.Handlers.PushStatusErrorHandler)">
+        <member name="M:LibGit2Sharp.Network.Push(LibGit2Sharp.Remote,System.String,LibGit2Sharp.Handlers.PushStatusErrorHandler,LibGit2Sharp.Credentials)">
             <summary>
               Push specified reference to the <see cref="T:LibGit2Sharp.Remote"/>.
             </summary>
@@ -623,7 +623,7 @@
             <param name="pushRefSpec">The pushRefSpec to push.</param>
             <param name="onPushStatusError">Handler for reporting failed push updates.</param>
         </member>
-        <member name="M:LibGit2Sharp.Network.Push(LibGit2Sharp.Remote,System.Collections.Generic.IEnumerable{System.String},LibGit2Sharp.Handlers.PushStatusErrorHandler)">
+        <member name="M:LibGit2Sharp.Network.Push(LibGit2Sharp.Remote,System.Collections.Generic.IEnumerable{System.String},LibGit2Sharp.Handlers.PushStatusErrorHandler,LibGit2Sharp.Credentials)">
             <summary>
               Push specified references to the <see cref="T:LibGit2Sharp.Remote"/>.
             </summary>
@@ -634,6 +634,11 @@
         <member name="P:LibGit2Sharp.Network.FetchHeads">
             <summary>
               The heads that have been updated during the last fetch.
+            </summary>
+        </member>
+        <member name="P:LibGit2Sharp.Network.Remotes">
+            <summary>
+              Lookup and manage remotes in the repository.
             </summary>
         </member>
         <member name="T:LibGit2Sharp.Network.PushCallbacks">
@@ -954,14 +959,14 @@
                </para>
                <para>
                  For example in  order to get the value for this in a .git\config file:
-             
+            
                  <code>
                  [core]
                  bare = true
                  </code>
-             
+            
                  You would call:
-             
+            
                  <code>
                  bool isBare = repo.Config.Get&lt;bool&gt;("core.bare").Value;
                  </code>
@@ -995,23 +1000,23 @@
              <returns>The <see cref="T:LibGit2Sharp.ConfigurationEntry`1"/>, or null if not set</returns>
         </member>
         <member name="M:LibGit2Sharp.Configuration.Set``1(System.String,``0,LibGit2Sharp.ConfigurationLevel)">
-            <summary>
-              Set a configuration value for a key. Keys are in the form 'section.name'.
-              <para>
-                For example in order to set the value for this in a .git\config file:
-              
-                [test]
-                boolsetting = true
-              
-                You would call:
-              
-                repo.Config.Set("test.boolsetting", true);
-              </para>
-            </summary>
-            <typeparam name = "T">The configuration value type</typeparam>
-            <param name = "key">The key parts</param>
-            <param name = "value">The value</param>
-            <param name = "level">The configuration file which should be considered as the target of this operation</param>
+             <summary>
+               Set a configuration value for a key. Keys are in the form 'section.name'.
+               <para>
+                 For example in order to set the value for this in a .git\config file:
+            
+                 [test]
+                 boolsetting = true
+            
+                 You would call:
+            
+                 repo.Config.Set("test.boolsetting", true);
+               </para>
+             </summary>
+             <typeparam name = "T">The configuration value type</typeparam>
+             <param name = "key">The key parts</param>
+             <param name = "value">The value</param>
+             <param name = "level">The configuration file which should be considered as the target of this operation</param>
         </member>
         <member name="P:LibGit2Sharp.Configuration.HasGlobalConfig">
             <summary>
@@ -1452,13 +1457,13 @@
         </member>
         <member name="T:LibGit2Sharp.Handlers.ProgressHandler">
             <summary>
-              Delegate definition to handle Progress callback. 
+              Delegate definition to handle Progress callback.
               Returns the text as reported by the server. The text
               in the serverProgressOutput parameter is not delivered
               in any particular units (i.e. not necessarily delivered
               as whole lines) and is likely to be chunked as partial lines.
             </summary>
-            <param name="serverProgressOutput">text reported by the server. 
+            <param name="serverProgressOutput">text reported by the server.
               Text can be chunked at arbitrary increments (i.e. can be composed
               of a partial line of text).</param>
         </member>
@@ -1871,7 +1876,7 @@
         </member>
         <member name="F:LibGit2Sharp.StageLevel.Staged">
             <summary>
-              The standard fully merged state for an index entry. 
+              The standard fully merged state for an index entry.
             </summary>
         </member>
         <member name="F:LibGit2Sharp.StageLevel.Ancestor">
@@ -2062,6 +2067,12 @@
         <member name="F:LibGit2Sharp.ChangeKind.Untracked">
             <summary>
               The file is untracked in the workdir.
+            </summary>
+        </member>
+        <member name="F:LibGit2Sharp.ChangeKind.TypeChanged">
+            <summary>
+              The type (i.e. regular file, symlink, submodule, ...)
+              of the file was changed.
             </summary>
         </member>
         <member name="F:LibGit2Sharp.Core.GitDiffOptionFlags.GIT_DIFF_NORMAL">
@@ -2500,6 +2511,11 @@
               Gets the references to the tips that are currently being merged.
             </summary>
         </member>
+        <member name="P:LibGit2Sharp.IRepository.Network">
+            <summary>
+              Provides access to network functionality for a repository.
+            </summary>
+        </member>
         <member name="T:LibGit2Sharp.NoteCollection">
             <summary>
               A collection of <see cref="T:LibGit2Sharp.Note"/> exposed in the <see cref="T:LibGit2Sharp.Repository"/>.
@@ -2706,8 +2722,8 @@
         </member>
         <member name="T:LibGit2Sharp.TransferCallbacks">
             <summary>
-              Class to handle the mapping between libgit2 git_transfer_progress_callback function and 
-              a corresponding <see cref="T:LibGit2Sharp.Handlers.TransferProgressHandler"/>. Generates a delegate that 
+              Class to handle the mapping between libgit2 git_transfer_progress_callback function and
+              a corresponding <see cref="T:LibGit2Sharp.Handlers.TransferProgressHandler"/>. Generates a delegate that
               wraps the <see cref="T:LibGit2Sharp.Handlers.TransferProgressHandler"/> delegate with a delegate that matches
               the git_transfer_progress_callback signature.
             </summary>
@@ -2815,6 +2831,11 @@
               List of <see cref="T:LibGit2Sharp.TreeEntryChanges"/> that have been modified.
             </summary>
         </member>
+        <member name="P:LibGit2Sharp.TreeChanges.TypeChanged">
+            <summary>
+              List of <see cref="T:LibGit2Sharp.TreeEntryChanges"/> which type have been changed.
+            </summary>
+        </member>
         <member name="P:LibGit2Sharp.TreeChanges.LinesAdded">
             <summary>
               The total number of lines added in this diff.
@@ -2837,7 +2858,7 @@
         </member>
         <member name="M:LibGit2Sharp.TreeEntryChanges.#ctor">
             <summary>
-              Needed for mocking purposes. 
+              Needed for mocking purposes.
             </summary>
         </member>
         <member name="P:LibGit2Sharp.TreeEntryChanges.Path">
@@ -3101,8 +3122,8 @@
         </member>
         <member name="T:LibGit2Sharp.Core.NativeMethods.LibraryLifetimeObject">
             <summary>
-            Internal hack to ensure that the call to git_threads_shutdown is called after all handle finalizers 
-            have run to completion ensuring that no dangling git-related finalizer runs after git_threads_shutdown. 
+            Internal hack to ensure that the call to git_threads_shutdown is called after all handle finalizers
+            have run to completion ensuring that no dangling git-related finalizer runs after git_threads_shutdown.
             There should never be more than one instance of this object per AppDomain.
             </summary>
         </member>
@@ -3465,7 +3486,7 @@
         </member>
         <member name="P:LibGit2Sharp.IndexEntry.State">
             <summary>
-              State of the version of the <see cref="T:LibGit2Sharp.Blob"/> pointed at by this <see cref="T:LibGit2Sharp.IndexEntry"/>, 
+              State of the version of the <see cref="T:LibGit2Sharp.Blob"/> pointed at by this <see cref="T:LibGit2Sharp.IndexEntry"/>,
               compared against the <see cref="T:LibGit2Sharp.Blob"/> known from the <see cref="P:LibGit2Sharp.Repository.Head"/> and the file in the working directory.
             </summary>
         </member>
@@ -3511,7 +3532,7 @@
             <summary>
               A pointer to a commit object or a list of pointers to consider as starting points.
               <para>
-                Can be either a <see cref="T:System.String"/> containing the sha or reference canonical name to use, 
+                Can be either a <see cref="T:System.String"/> containing the sha or reference canonical name to use,
                 a <see cref="T:LibGit2Sharp.Branch"/>, a <see cref="T:LibGit2Sharp.Reference"/>, a <see cref="T:LibGit2Sharp.Commit"/>, a <see cref="T:LibGit2Sharp.Tag"/>,
                 a <see cref="T:LibGit2Sharp.TagAnnotation"/>, an <see cref="T:LibGit2Sharp.ObjectId"/> or even a mixed collection of all of the above.
                 By default, the <see cref="P:LibGit2Sharp.Repository.Head"/> will be used as boundary.
@@ -3522,7 +3543,7 @@
             <summary>
               A pointer to a commit object or a list of pointers which will be excluded (along with ancestors) from the enumeration.
               <para>
-                Can be either a <see cref="T:System.String"/> containing the sha or reference canonical name to use, 
+                Can be either a <see cref="T:System.String"/> containing the sha or reference canonical name to use,
                 a <see cref="T:LibGit2Sharp.Branch"/>, a <see cref="T:LibGit2Sharp.Reference"/>, a <see cref="T:LibGit2Sharp.Commit"/>, a <see cref="T:LibGit2Sharp.Tag"/>,
                 a <see cref="T:LibGit2Sharp.TagAnnotation"/>, an <see cref="T:LibGit2Sharp.ObjectId"/> or even a mixed collection of all of the above.
               </para>
@@ -4578,7 +4599,7 @@
             <param name="amendPreviousCommit">True to amend the current <see cref="T:LibGit2Sharp.Commit"/> pointed at by <see cref="P:LibGit2Sharp.Repository.Head"/>, false otherwise.</param>
             <returns>The generated <see cref="T:LibGit2Sharp.Commit"/>.</returns>
         </member>
-        <member name="M:LibGit2Sharp.RepositoryExtensions.Fetch(LibGit2Sharp.IRepository,System.String,LibGit2Sharp.TagFetchMode,LibGit2Sharp.Handlers.ProgressHandler,LibGit2Sharp.Handlers.CompletionHandler,LibGit2Sharp.Handlers.UpdateTipsHandler,LibGit2Sharp.Handlers.TransferProgressHandler)">
+        <member name="M:LibGit2Sharp.RepositoryExtensions.Fetch(LibGit2Sharp.IRepository,System.String,LibGit2Sharp.TagFetchMode,LibGit2Sharp.Handlers.ProgressHandler,LibGit2Sharp.Handlers.CompletionHandler,LibGit2Sharp.Handlers.UpdateTipsHandler,LibGit2Sharp.Handlers.TransferProgressHandler,LibGit2Sharp.Credentials)">
             <summary>
               Fetch from the specified remote.
             </summary>
@@ -4590,6 +4611,7 @@
             <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
             <param name="onTransferProgress">Callback method that transfer progress will be reported through.
               Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
+            <param name="credentials">Credentials to use for username/password authentication.</param>
         </member>
         <member name="M:LibGit2Sharp.RepositoryExtensions.Checkout(LibGit2Sharp.IRepository,System.String)">
             <summary>
