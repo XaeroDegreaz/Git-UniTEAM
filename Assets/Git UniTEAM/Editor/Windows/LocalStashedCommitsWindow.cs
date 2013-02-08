@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEditor;
 using LibGit2Sharp;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Handlers;
 using System.Collections;
@@ -18,7 +19,7 @@ namespace UniTEAM {
 			scroll = GUILayout.BeginScrollView( scroll );
 
 			foreach ( Commit commit in Console.repo.Commits.QueryBy( new Filter { Since = Console.branch.Tip, Until = Console.branch.TrackedBranch } ) ) {
-				Console.getUpdateItem( commit, rect );
+				Console.getUpdateItem( commit, commit.Parents.First(), rect );
 			}
 
 			GUILayout.EndScrollView();

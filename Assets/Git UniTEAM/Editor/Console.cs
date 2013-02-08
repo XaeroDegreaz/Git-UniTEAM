@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using System.Linq;
 using UnityEditor;
 using LibGit2Sharp;
 using LibGit2Sharp.Core;
@@ -144,7 +145,7 @@ namespace UniTEAM {
 			);
 		}
 
-		public static void getUpdateItem( Commit commit, Rect windowRect ) {
+		public static void getUpdateItem( Commit commit, Commit lastCommit, Rect windowRect ) {
 			CommitItem item = new CommitItem( commit );
 
 			float horizontalWidth = ( windowRect.width ) - ( windowPadding * 2 ) - 25;
@@ -154,7 +155,8 @@ namespace UniTEAM {
 			Rect r = EditorGUILayout.BeginHorizontal( "Button", GUILayout.Width( horizontalWidth ) );
 
 			if ( GUI.Button( r, GUIContent.none ) ) {
-				Debug.Log("# Changed files: "+commit.Tree.Count);
+				Debug.Log( "# Changed files: " + repo.Diff.Compare( commit.Tree, lastCommit.Tree ).Count() );
+				
 			}
 
 			GUILayout.Label( item.commitMessage.Substring( 0, Mathf.Min( item.commitMessage.Length, 100 ) ), GUILayout.Width( halfWidth ) );

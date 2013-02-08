@@ -63,7 +63,7 @@ namespace UniTEAM {
 			pathNodes.Clear();
 
 			scroll = GUILayout.BeginScrollView( scroll );
-
+			
 			foreach ( TreeEntryChanges change in changes ) {
 				recurseToAssetFolder( change, ref highlight );
 			}
@@ -143,6 +143,11 @@ namespace UniTEAM {
 				if ( !iterationIsDir ) {
 					checkboxValues[ change.Path ] = GUILayout.Toggle( checkboxValues[ change.Path ], pathArray[ i ] );
 					GUILayout.Label( "[" + change.Status + "]", statusStyle );
+
+					if ( GUILayout.Button( "Diff", GUILayout.Width( 50 ) ) ) {
+						Diff.init(change.Patch);
+					}
+
 				} else {
 					foldoutValues[ pathArray[ i ] ] = EditorGUILayout.Foldout( foldoutValues[ pathArray[ i ] ], pathArray[ i ] );
 					GUI.enabled = foldoutValues[ pathArray[ i ] ];
