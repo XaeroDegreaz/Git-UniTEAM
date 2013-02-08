@@ -35,6 +35,7 @@ namespace UniTEAM {
 		}
 
 		public static Console instance;
+
 		void OnEnable() {
 			instance = this;
 			credentials = new Credentials();
