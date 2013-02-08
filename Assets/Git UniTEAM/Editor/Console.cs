@@ -94,13 +94,28 @@ namespace UniTEAM {
 			GUILayout.EndHorizontal();
 
 			BeginWindows();
-			GUILayout.Window( 0, OverviewWindow.rect, OverviewWindow.draw, "Overview" );
-			GUILayout.Window( 1, UncommitedChangesWindow.rect, UncommitedChangesWindow.draw, "Uncommited Changes" );
-			GUILayout.Window( 2, UpdatesOnServerWindow.rect, UpdatesOnServerWindow.draw,
-							  "Updates on Server [Commits Behind: " + repo.Head.BehindBy + "]" );
-			GUILayout.Window( 3, LocalStashedCommitsWindow.rect, LocalStashedCommitsWindow.draw,
-							  "Local Commit Stash [Commits Ahead: " + repo.Head.AheadBy + "]" );
+			if ( !currentError.Equals( string.Empty ) ) {
+				GUILayout.Window( 4, currentErrorLocation, errorWindow, "Error:" );
+			} else {
+				GUILayout.Window( 0, OverviewWindow.rect, OverviewWindow.draw, "Overview" );
+				GUILayout.Window( 1, UncommitedChangesWindow.rect, UncommitedChangesWindow.draw, "Uncommited Changes" );
+				GUILayout.Window( 2, UpdatesOnServerWindow.rect, UpdatesOnServerWindow.draw,
+								  "Updates on Server [Commits Behind: " + repo.Head.BehindBy + "]" );
+				GUILayout.Window( 3, LocalStashedCommitsWindow.rect, LocalStashedCommitsWindow.draw,
+								  "Local Commit Stash [Commits Ahead: " + repo.Head.AheadBy + "]" );
+			}
+			
 			EndWindows();
+		}
+
+		public static string currentError = string.Empty;
+		public static Rect currentErrorLocation;
+
+		private static void errorWindow( int i ) {
+			GUILayout.Label( currentError );
+			if ( GUILayout.Button( "Close" ) ) {
+				currentError = string.Empty;
+			}
 		}
 
 		private void fixWindowRects() {

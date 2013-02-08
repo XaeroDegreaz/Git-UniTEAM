@@ -64,7 +64,7 @@ namespace UniTEAM {
 			GUI.enabled = true;
 			GUILayout.EndScrollView();
 
-			GUILayout.BeginHorizontal(  );
+			//GUILayout.BeginHorizontal(  );
 			commitText = GUILayout.TextField( commitText );
 			if ( GUILayout.Button( "Commit Changes" ) ) {
 				Signature signature = new Signature( "Jerome Doby", "xaerodegreaz@gmail.com", System.DateTimeOffset.Now );
@@ -83,17 +83,20 @@ namespace UniTEAM {
 				stage = stage.Where( x => !string.IsNullOrEmpty( x ) ).ToArray();
 
 				if ( stage.Length == 0 ) {
-					EditorGUILayout.HelpBox( "There are no files staged for commit!", MessageType.Error );
-					return;
+					Console.currentError = "You cannot commit without staged items.";
+					Console.currentErrorLocation = rect;
+				}else if(commitText.Equals( string.Empty )) {
+					Console.currentError = "Please enter a commit message.";
+					Console.currentErrorLocation = rect;
+				} else {
+					Console.repo.Index.Stage( stage );
+					Console.repo.Commit( commitText, signature );
+					Console.instance.fetch();
 				}
-
-				Console.repo.Index.Stage( stage );
-				Console.repo.Commit( commitText, signature );
-				Console.instance.fetch();
 
 				commitText = string.Empty;
 			}
-			GUILayout.EndHorizontal();
+			//GUILayout.EndHorizontal();
 		}
 
 		private static void recurseToAssetFolder( TreeEntryChanges change, ref bool highlight) {
