@@ -68,6 +68,18 @@ namespace UniTEAM {
 			if ( GUILayout.Button( "Commit Changes" ) ) {
 				Signature signature = new Signature( "Jerome Doby", "xaerodegreaz@gmail.com", System.DateTimeOffset.Now );
 
+				//# Stage everything
+				string[] stage = new string[checkboxValues.Count];
+
+				i = 0;
+				foreach ( KeyValuePair<string, bool> pair in checkboxValues ) {
+					if ( pair.Value ) {
+						stage[ i ] = pair.Key;
+						i++;
+					}
+				}
+
+				Console.repo.Index.Stage( stage );
 				Console.repo.Commit( commitText, signature );
 				Console.instance.fetch();
 
