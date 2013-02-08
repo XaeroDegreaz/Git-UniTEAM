@@ -32,6 +32,8 @@ namespace UniTEAM {
 			highlightTexture = getGenericTexture( 1, 1, new Color( 71f / 255f, 71f / 255f, 71f / 255f ) );
 			noTexture = getGenericTexture( 1, 1, new Color( 46f / 255f, 46f / 255f, 46f / 255f ) );
 
+			highlightTexture.hideFlags = HideFlags.HideAndDontSave;
+
 			statusStyle = new GUIStyle( "Label" );
 			statusStyle.alignment = TextAnchor.LowerRight;
 
