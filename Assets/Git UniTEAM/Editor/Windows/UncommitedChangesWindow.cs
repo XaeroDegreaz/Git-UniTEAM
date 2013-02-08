@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using LibGit2Sharp;
@@ -77,6 +78,13 @@ namespace UniTEAM {
 						stage[ i ] = pair.Key;
 						i++;
 					}
+				}
+
+				stage = stage.Where( x => !string.IsNullOrEmpty( x ) ).ToArray();
+
+				if ( stage.Length == 0 ) {
+					EditorGUILayout.HelpBox( "There are no files staged for commit!", MessageType.Error );
+					return;
 				}
 
 				Console.repo.Index.Stage( stage );
