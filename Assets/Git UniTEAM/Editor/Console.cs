@@ -154,7 +154,7 @@ namespace UniTEAM {
 			Rect r = EditorGUILayout.BeginHorizontal( "Button", GUILayout.Width( horizontalWidth ) );
 
 			if ( GUI.Button( r, GUIContent.none ) ) {
-				Debug.Log( "Commit pressed" );
+				Debug.Log("# Changed files: "+commit.Tree.Count);
 			}
 
 			GUILayout.Label( item.commitMessage.Substring( 0, Mathf.Min( item.commitMessage.Length, 100 ) ), GUILayout.Width( halfWidth ) );
