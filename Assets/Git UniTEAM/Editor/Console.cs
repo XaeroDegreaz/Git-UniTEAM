@@ -18,6 +18,7 @@ namespace UniTEAM {
 		public Credentials credentials;
 		private static float windowPadding = 5f;
 		private float nextRefetch = 30f;
+		private float refetchFrequency = 30f;
 
 		public Vector2 overviewWindowScroll;
 		public Vector2 updatesOnServerWindowScroll;
@@ -55,7 +56,7 @@ namespace UniTEAM {
 			FetchHelper.RemoteFetch( ref remote, ref credentials, this );
 			UncommitedChangesWindow.reset( repo.Diff.Compare() );
 
-			nextRefetch = Time.realtimeSinceStartup + 5f;
+			nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
 			branch = repo.Head;
 
 			Repaint();
