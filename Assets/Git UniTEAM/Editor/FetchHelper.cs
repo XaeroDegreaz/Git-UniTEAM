@@ -14,8 +14,9 @@ namespace UniTEAM {
 
 		public static bool isFetchComplete = false;
 
-		public static void RemoteFetch( ref Remote remote, ref Credentials creds, Console console ) {
+		public static void RemoteFetch( Remote remote, Credentials creds ) {
 			try {
+				UnityThreadHelper.CreateThread( () => {
 				remote.Fetch( TagFetchMode.Auto,
 					OnProgress,
 					OnCompletion,
@@ -25,32 +26,33 @@ namespace UniTEAM {
 				);
 
 				isFetchComplete = true;
+				} );
 			} catch ( System.Exception e ) {
 				Debug.Log( e );
 			}
 		}
 
 		public static void OnTransferProgress( TransferProgress progress ) {
-			Debug.LogWarning( progress );
+			//Debug.LogWarning( progress );
 		}
 
 		public static int OnUpdateTips( string referenceName, ObjectId oldId, ObjectId newId ) {
 			isFetchComplete = true;
 
-			Debug.LogWarning("Tips updated!"+ referenceName + "/" + oldId + "/" + newId );
+			//Debug.LogWarning("Tips updated!"+ referenceName + "/" + oldId + "/" + newId );
 
 			return 0;
 		}
 
 		public static int OnCompletion( RemoteCompletionType remoteCompletionType ) {
-			Debug.LogWarning( "Complete" );
+			//Debug.LogWarning( "Complete" );
 			return 0;
 		}
 
 		public static void OnProgress( string serverProgressOutput ) {
 			isFetchComplete = false;
 
-			Debug.LogWarning( serverProgressOutput );
+			//Debug.LogWarning( serverProgressOutput );
 		}
 	}
 }

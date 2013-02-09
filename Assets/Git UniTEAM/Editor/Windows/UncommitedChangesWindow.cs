@@ -61,7 +61,9 @@ namespace UniTEAM {
 			pathNodes.Clear();
 
 			scroll = GUILayout.BeginScrollView( scroll );
-			
+
+			changes = changes ?? Console.repo.Diff.Compare();
+
 			foreach ( TreeEntryChanges change in changes ) {
 				recurseToAssetFolder( change, ref highlight );
 			}

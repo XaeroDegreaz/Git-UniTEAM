@@ -51,9 +51,11 @@ namespace UniTEAM {
 		}
 
 		public void fetch() {
-			FetchHelper.isFetchComplete = false;
-			FetchHelper.RemoteFetch( ref remote, ref credentials, this );
-			UncommitedChangesWindow.reset( repo.Diff.Compare() );
+			
+				FetchHelper.isFetchComplete = false;
+				FetchHelper.RemoteFetch( remote, credentials );
+				UncommitedChangesWindow.reset( repo.Diff.Compare() );
+			
 
 			nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
 			branch = repo.Head;
@@ -82,7 +84,7 @@ namespace UniTEAM {
 			GUILayout.Button( "Overview" );
 
 			if ( GUILayout.Button( "Update" ) ) {
-				FetchHelper.RemoteFetch( ref remote, ref credentials, this );
+				fetch();
 			}
 
 

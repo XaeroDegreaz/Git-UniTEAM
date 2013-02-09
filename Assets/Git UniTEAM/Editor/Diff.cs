@@ -12,6 +12,7 @@ namespace UniTEAM {
 
 	public class Diff : EditorWindow {
 		private static string patch;
+		private Vector2 rect;
 
 		public static void init( string diffPatch ) {
 			patch = diffPatch;
@@ -21,6 +22,7 @@ namespace UniTEAM {
 
 		private void OnGUI() {
 			try {
+				rect = GUILayout.BeginScrollView( rect );
 				string[] arr = patch.Split( "\n".ToCharArray() );
 				Texture2D oldBG = GUI.skin.label.normal.background;
 
@@ -35,6 +37,7 @@ namespace UniTEAM {
 
 					GUILayout.Label( s );
 				}
+				GUILayout.EndScrollView();
 			}catch{}
 		}
 	}
