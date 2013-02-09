@@ -45,10 +45,6 @@ namespace UniTEAM {
 
 		public static void draw( int i ) {
 
-			UnityThreadHelper.CreateThread( () => {
-				changes = Console.repo.Diff.Compare();
-			} );
-
 			bool highlight = true;
 			pathNodes.Clear();
 

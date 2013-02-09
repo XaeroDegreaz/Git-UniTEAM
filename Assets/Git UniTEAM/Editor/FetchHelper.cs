@@ -20,18 +20,22 @@ namespace UniTEAM {
 			try {
 				UnityThreadHelper.CreateThread( () => {
 					remote.Fetch( TagFetchMode.Auto,
-						OnProgress,
-					    OnCompletion,
-					    OnUpdateTips,
-						OnTransferProgress,
-					    credentials: creds
-					);
+					              OnProgress,
+					              OnCompletion,
+					              OnUpdateTips,
+					              OnTransferProgress,
+					              credentials: creds
+						);
 
 					Console.branch = Console.repo.Head;
 					isFetchComplete = true;
-				});
+				} );
 			} catch ( System.Exception e ) {
 				Debug.Log( e );
+			} finally {
+				UnityThreadHelper.CreateThread( () => {
+					UncommitedChangesWindow.changes = Console.repo.Diff.Compare();
+				} );
 			}
 		}
 
