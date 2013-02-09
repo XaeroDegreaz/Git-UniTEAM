@@ -14,8 +14,8 @@ namespace UniTEAM {
 
 		private string lastCommitMessage;
 		private static float windowPadding = 5f;
-		private float nextRefetch = 5f;
-		private float refetchFrequency = 5f;
+		private float nextRefetch = 10f;
+		private float refetchFrequency = 10f;
 
 		public Vector2 overviewWindowScroll;
 		public Vector2 updatesOnServerWindowScroll;
