@@ -14,8 +14,8 @@ namespace UniTEAM {
 
 		private string lastCommitMessage;
 		private static float windowPadding = 5f;
-		private float nextRefetch = 30f;
-		private float refetchFrequency = 30f;
+		private float nextRefetch = -1;
+		private float refetchFrequency = 5f;
 
 		public Vector2 overviewWindowScroll;
 		public Vector2 updatesOnServerWindowScroll;
@@ -28,15 +28,15 @@ namespace UniTEAM {
 		public static Branch branch;
 		public Credentials credentials;
 
-		[MenuItem( "Team/Git UniTEAM" )]
+		[MenuItem( "Team/Git UniTEAM Console" )]
 		static void init() {
-			//CreateInstance<Console>();
 			EditorWindow.GetWindow( typeof( Console ), false, "UniTEAM" );
 		}
 
 		public static Console instance;
 
 		void OnEnable() {
+			nextRefetch = Time.realtimeSinceStartup + 5f;
 			instance = this;
 			credentials = new Credentials();
 			credentials.Username = "xaerodegreaz";
@@ -46,72 +46,77 @@ namespace UniTEAM {
 			remote = repo.Remotes[ "origin" ];
 
 			OverviewWindow.selectedRemote = remote.Name;
-
-			fetch();
 		}
 
 		public void fetch() {
-			
+			try {
 				FetchHelper.isFetchComplete = false;
 				FetchHelper.RemoteFetch( remote, credentials );
 				UncommitedChangesWindow.reset( repo.Diff.Compare() );
-			
 
-			nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
-			branch = repo.Head;
+				nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
+				branch = repo.Head;
 
-			Repaint();
+				Repaint();
+			}
+			catch {}
 		}
 
-		void Update() {
-			if ( FetchHelper.isFetchComplete ) {
-				if ( Time.realtimeSinceStartup >= nextRefetch ) {
-					fetch();
-				}
+		private void Update() {
+			if ( Time.realtimeSinceStartup >= nextRefetch ) {
+				fetch();
 			}
 		}
 
 		void OnGUI() {
-			//# Create new instances so we can instantia the guiskin stuff once and only once
-			//# reducing the amount of function calls during ongui
-			if ( uncommitedChangesWindow == null ) {
-				uncommitedChangesWindow = new UncommitedChangesWindow();
+			if ( !FetchHelper.isFetchComplete ) {
+				return;
 			}
 
-			fixWindowRects();
+			try {
+				//# Create new instances so we can instantia the guiskin stuff once and only once
+				//# reducing the amount of function calls during ongui
+				if ( uncommitedChangesWindow == null ) {
+					uncommitedChangesWindow = new UncommitedChangesWindow();
+				}
 
-			GUILayout.BeginHorizontal();
-			GUILayout.Button( "Overview" );
+				fixWindowRects();
 
-			if ( GUILayout.Button( "Update" ) ) {
-				fetch();
+				GUILayout.BeginHorizontal();
+				GUILayout.Button( "Overview" );
+
+				if ( GUILayout.Button( "Force Re-fetch [refresh]" ) ) {
+					fetch();
+				}
+
+				GUI.enabled = !LocalStashedCommitsWindow.isPushing;
+				if ( GUILayout.Button( ( !LocalStashedCommitsWindow.isPushing ) ? "Push Stashed Commits" : "Pushing, please wait..." ) ) {
+					UnityThreadHelper.CreateThread( () => {
+						LocalStashedCommitsWindow.isPushing = true;
+						repo.Network.Push( remote, "refs/heads/master:refs/heads/master", OnPushStatusError, credentials );
+						LocalStashedCommitsWindow.isPushing = false;
+					} );
+				}
+				GUI.enabled = true;
+
+				GUILayout.EndHorizontal();
+
+				BeginWindows();
+				if ( !currentError.Equals( string.Empty ) ) {
+					GUILayout.Window( 4, currentErrorLocation, errorWindow, "Error:" );
+				}
+				else {
+					GUILayout.Window( 0, OverviewWindow.rect, OverviewWindow.draw, "Overview" );
+					GUILayout.Window( 1, UncommitedChangesWindow.rect, UncommitedChangesWindow.draw, "Uncommited Changes" );
+					GUILayout.Window( 2, UpdatesOnServerWindow.rect, UpdatesOnServerWindow.draw,
+					                  "Updates on Server [Commits Behind: " + repo.Head.BehindBy + "]" );
+					GUILayout.Window( 3, LocalStashedCommitsWindow.rect, LocalStashedCommitsWindow.draw,
+					                  "Local Commit Stash [Commits Ahead: " + repo.Head.AheadBy + "]" );
+				}
+
+				EndWindows();
 			}
-
-			GUI.enabled = !LocalStashedCommitsWindow.isPushing;
-			if ( GUILayout.Button( ( !LocalStashedCommitsWindow.isPushing ) ? "Push Stashed Commits" : "Pushing, please wait..." ) ) {
-				UnityThreadHelper.CreateThread( () => {
-					LocalStashedCommitsWindow.isPushing = true;
-					repo.Network.Push( remote, "refs/heads/master:refs/heads/master", OnPushStatusError, credentials );
-					LocalStashedCommitsWindow.isPushing = false;
-				} );
-			}
-			GUI.enabled = true;
-
-			GUILayout.EndHorizontal();
-
-			BeginWindows();
-			if ( !currentError.Equals( string.Empty ) ) {
-				GUILayout.Window( 4, currentErrorLocation, errorWindow, "Error:" );
-			} else {
-				GUILayout.Window( 0, OverviewWindow.rect, OverviewWindow.draw, "Overview" );
-				GUILayout.Window( 1, UncommitedChangesWindow.rect, UncommitedChangesWindow.draw, "Uncommited Changes" );
-				GUILayout.Window( 2, UpdatesOnServerWindow.rect, UpdatesOnServerWindow.draw,
-								  "Updates on Server [Commits Behind: " + repo.Head.BehindBy + "]" );
-				GUILayout.Window( 3, LocalStashedCommitsWindow.rect, LocalStashedCommitsWindow.draw,
-								  "Local Commit Stash [Commits Ahead: " + repo.Head.AheadBy + "]" );
-			}
-			
-			EndWindows();
+			catch {}
 		}
 
 		private void OnPushStatusError( PushStatusError pushStatusErrors ) {
@@ -177,5 +182,4 @@ namespace UniTEAM {
 			GUILayout.EndHorizontal();
 		}
 	}
-
 }

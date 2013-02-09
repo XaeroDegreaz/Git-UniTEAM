@@ -614,6 +614,7 @@
             <param name="objectish">The source objectish to push.</param>
             <param name="destinationSpec">The reference to update on the remote.</param>
             <param name="onPushStatusError">Handler for reporting failed push updates.</param>
+            <param name="credentials">Optional <see cref="T:LibGit2Sharp.Credentials"/> instance for SSH authentication.</param>
         </member>
         <member name="M:LibGit2Sharp.Network.Push(LibGit2Sharp.Remote,System.String,LibGit2Sharp.Handlers.PushStatusErrorHandler,LibGit2Sharp.Credentials)">
             <summary>
@@ -622,6 +623,7 @@
             <param name="remote">The <see cref="T:LibGit2Sharp.Remote"/> to push to.</param>
             <param name="pushRefSpec">The pushRefSpec to push.</param>
             <param name="onPushStatusError">Handler for reporting failed push updates.</param>
+            <param name="credentials">Optional <see cref="T:LibGit2Sharp.Credentials"/> instance for SSH authentication.</param>
         </member>
         <member name="M:LibGit2Sharp.Network.Push(LibGit2Sharp.Remote,System.Collections.Generic.IEnumerable{System.String},LibGit2Sharp.Handlers.PushStatusErrorHandler,LibGit2Sharp.Credentials)">
             <summary>
@@ -630,6 +632,7 @@
             <param name="remote">The <see cref="T:LibGit2Sharp.Remote"/> to push to.</param>
             <param name="pushRefSpecs">The pushRefSpecs to push.</param>
             <param name="onPushStatusError">Handler for reporting failed push updates.</param>
+            <param name="credentials">Optional <see cref="T:LibGit2Sharp.Credentials"/> instance for SSH authentication.</param>
         </member>
         <member name="P:LibGit2Sharp.Network.FetchHeads">
             <summary>
@@ -1615,7 +1618,7 @@
               Provides helper overloads to a <see cref="T:LibGit2Sharp.Network"/>.
             </summary>
         </member>
-        <member name="M:LibGit2Sharp.NetworkExtensions.Push(LibGit2Sharp.Network,LibGit2Sharp.Remote,System.String,System.String)">
+        <member name="M:LibGit2Sharp.NetworkExtensions.Push(LibGit2Sharp.Network,LibGit2Sharp.Remote,System.String,System.String,LibGit2Sharp.Credentials)">
             <summary>
               Push the objectish to the destination reference on the <see cref="T:LibGit2Sharp.Remote"/>.
             </summary>
@@ -1623,24 +1626,27 @@
             <param name="remote">The <see cref="T:LibGit2Sharp.Remote"/> to push to.</param>
             <param name="objectish">The source objectish to push.</param>
             <param name="destinationSpec">The reference to update on the remote.</param>
+            <param name="credentials">Optional <see cref="T:LibGit2Sharp.Credentials"/> instance for SSH authentication.</param>
             <returns>Results of the push operation.</returns>
         </member>
-        <member name="M:LibGit2Sharp.NetworkExtensions.Push(LibGit2Sharp.Network,LibGit2Sharp.Remote,System.String)">
+        <member name="M:LibGit2Sharp.NetworkExtensions.Push(LibGit2Sharp.Network,LibGit2Sharp.Remote,System.String,LibGit2Sharp.Credentials)">
             <summary>
               Push specified reference to the <see cref="T:LibGit2Sharp.Remote"/>.
             </summary>
             <param name="network">The <see cref="T:LibGit2Sharp.Network"/> being worked with.</param>
             <param name="remote">The <see cref="T:LibGit2Sharp.Remote"/> to push to.</param>
             <param name="pushRefSpec">The pushRefSpec to push.</param>
+            <param name="credentials">Optional <see cref="T:LibGit2Sharp.Credentials"/> instance for SSH authentication.</param>
             <returns>Results of the push operation.</returns>
         </member>
-        <member name="M:LibGit2Sharp.NetworkExtensions.Push(LibGit2Sharp.Network,LibGit2Sharp.Remote,System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:LibGit2Sharp.NetworkExtensions.Push(LibGit2Sharp.Network,LibGit2Sharp.Remote,System.Collections.Generic.IEnumerable{System.String},LibGit2Sharp.Credentials)">
             <summary>
               Push specified references to the <see cref="T:LibGit2Sharp.Remote"/>.
             </summary>
             <param name="network">The <see cref="T:LibGit2Sharp.Network"/> being worked with.</param>
             <param name="remote">The <see cref="T:LibGit2Sharp.Remote"/> to push to.</param>
             <param name="pushRefSpecs">The pushRefSpecs to push.</param>
+            <param name="credentials">Optional <see cref="T:LibGit2Sharp.Credentials"/> instance for SSH authentication.</param>
             <returns>Results of the push operation.</returns>
         </member>
         <member name="T:LibGit2Sharp.PushResult">

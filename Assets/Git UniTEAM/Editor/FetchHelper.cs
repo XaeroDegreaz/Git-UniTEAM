@@ -16,7 +16,7 @@ namespace UniTEAM {
 
 		public static void RemoteFetch( Remote remote, Credentials creds ) {
 			try {
-				UnityThreadHelper.CreateThread( () => {
+				//UnityThreadHelper.CreateThread( () => {
 				remote.Fetch( TagFetchMode.Auto,
 					OnProgress,
 					OnCompletion,
@@ -26,7 +26,7 @@ namespace UniTEAM {
 				);
 
 				isFetchComplete = true;
-				} );
+				//} );
 			} catch ( System.Exception e ) {
 				Debug.Log( e );
 			}
