@@ -43,19 +43,25 @@ namespace UniTEAM {
 			noStyle.normal.background = noTexture;
 		}
 
-		public static void draw( int i ) {
+		public static void reset(TreeChanges newChanges) {
+			changes = newChanges;
 
+			//# If anything evaluates true here, this means someone is currently working in the commit window, and
+			//# we don't want to interrupt their changes.
+			if ( checkboxValues.ContainsValue( false ) || foldoutValues.ContainsValue( false ) || commitText.Trim().Length > 0 ) {
+				return;
+			}
+
+			checkboxValues.Clear();
+			foldoutValues.Clear();
+		}
+
+		public static void draw( int i ) {
 			bool highlight = true;
 			pathNodes.Clear();
 
 			scroll = GUILayout.BeginScrollView( scroll );
-
-			if ( changes == null ) {
-				GUILayout.Label( "Loading..." );
-				GUILayout.EndScrollView();
-				return;
-			}
-
+			
 			foreach ( TreeEntryChanges change in changes ) {
 				recurseToAssetFolder( change, ref highlight );
 			}
@@ -90,11 +96,7 @@ namespace UniTEAM {
 				} else {
 					Console.repo.Index.Stage( stage );
 					Console.repo.Commit( commitText, signature );
-					//Console.repo.Fetch( Console.instance.remote.Name );
-					//FetchHelper.RemoteFetch( Console.instance.remote, Console.instance.credentials, Console.instance );
-
-					checkboxValues.Clear();
-					foldoutValues.Clear();
+					Console.instance.fetch();
 				}
 
 				commitText = string.Empty;

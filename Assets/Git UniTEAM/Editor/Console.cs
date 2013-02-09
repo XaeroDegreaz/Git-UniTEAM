@@ -14,8 +14,8 @@ namespace UniTEAM {
 
 		private string lastCommitMessage;
 		private static float windowPadding = 5f;
-		private float nextRefetch = 10f;
-		private float refetchFrequency = 10f;
+		private float nextRefetch = 30f;
+		private float refetchFrequency = 30f;
 
 		public Vector2 overviewWindowScroll;
 		public Vector2 updatesOnServerWindowScroll;
@@ -31,7 +31,7 @@ namespace UniTEAM {
 		[MenuItem( "Team/Git UniTEAM" )]
 		static void init() {
 			//CreateInstance<Console>();
-			EditorWindow.GetWindow( typeof( UniTEAM.Console ), false, "UniTEAM" );
+			EditorWindow.GetWindow( typeof( Console ), false, "UniTEAM" );
 		}
 
 		public static Console instance;
@@ -43,20 +43,28 @@ namespace UniTEAM {
 			credentials.Password = "!!11OBywan";
 
 			repo = new Repository( Directory.GetCurrentDirectory() );
-			branch = repo.Head;
-			remote = repo.Network.Remotes[ "origin" ];
+			remote = repo.Remotes[ "origin" ];
 
 			OverviewWindow.selectedRemote = remote.Name;
 
-			//FetchHelper.RemoteFetch( remote, credentials, this );
+			fetch();
+		}
+
+		public void fetch() {
+			FetchHelper.isFetchComplete = false;
+			FetchHelper.RemoteFetch( ref remote, ref credentials, this );
+			UncommitedChangesWindow.reset( repo.Diff.Compare() );
+
+			nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
+			branch = repo.Head;
+
 			Repaint();
 		}
 
 		void Update() {
 			if ( FetchHelper.isFetchComplete ) {
 				if ( Time.realtimeSinceStartup >= nextRefetch ) {
-					FetchHelper.RemoteFetch( remote, credentials, this );
-					nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
+					fetch();
 				}
 			}
 		}
@@ -74,14 +82,12 @@ namespace UniTEAM {
 			GUILayout.Button( "Overview" );
 
 			if ( GUILayout.Button( "Update" ) ) {
-				FetchHelper.RemoteFetch( remote, credentials, this );
+				FetchHelper.RemoteFetch( ref remote, ref credentials, this );
 			}
 
 
 			if ( GUILayout.Button( "Push Stashed Commits" ) ) {
-				UnityThreadHelper.CreateThread( () => {
-					repo.Network.Push( remote, "refs/heads/master:refs/heads/master", OnPushStatusError, credentials );
-				} );
+				repo.Network.Push( remote, "refs/heads/master:refs/heads/master", OnPushStatusError, credentials );
 			}
 
 			GUILayout.EndHorizontal();

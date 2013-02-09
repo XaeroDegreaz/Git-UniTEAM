@@ -15,7 +15,7 @@ namespace UniTEAM {
 
 		public static void init( string diffPatch ) {
 			patch = diffPatch;
-			EditorWindow.GetWindow( typeof ( UniTEAM.Diff ), false, "UniTEAM - Diff" );
+			EditorWindow.GetWindow( typeof ( Diff ), false, "UniTEAM - Diff" );
 		}
 
 

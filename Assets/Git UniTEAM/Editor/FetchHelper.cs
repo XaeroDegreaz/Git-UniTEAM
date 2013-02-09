@@ -12,30 +12,21 @@ using UniTEAM;
 namespace UniTEAM {
 	public class FetchHelper {
 
-		public static bool isFetchComplete = true;
+		public static bool isFetchComplete = false;
 
-		public static void RemoteFetch( Remote remote, Credentials creds, Console console ) {
-			isFetchComplete = false;
-
+		public static void RemoteFetch( ref Remote remote, ref Credentials creds, Console console ) {
 			try {
-				UnityThreadHelper.CreateThread( () => {
-					remote.Fetch( TagFetchMode.Auto,
-					              OnProgress,
-					              OnCompletion,
-					              OnUpdateTips,
-					              OnTransferProgress,
-					              credentials: creds
-						);
+				remote.Fetch( TagFetchMode.Auto,
+					OnProgress,
+					OnCompletion,
+					OnUpdateTips,
+					OnTransferProgress,
+					credentials: creds
+				);
 
-					Console.branch = Console.repo.Head;
-					isFetchComplete = true;
-				} );
+				isFetchComplete = true;
 			} catch ( System.Exception e ) {
 				Debug.Log( e );
-			} finally {
-				UnityThreadHelper.CreateThread( () => {
-					UncommitedChangesWindow.changes = Console.repo.Diff.Compare();
-				} );
 			}
 		}
 
