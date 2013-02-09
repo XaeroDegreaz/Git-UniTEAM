@@ -14,17 +14,19 @@ namespace UniTEAM {
 
 		public static bool isFetchComplete = false;
 
-		public static void RemoteFetch( ref Remote remote, ref Credentials creds, Console console ) {
+		public static void RemoteFetch( Remote remote, Credentials creds, Console console ) {
 			try {
-				remote.Fetch( TagFetchMode.Auto,
-					OnProgress,
-					OnCompletion,
-					OnUpdateTips,
-					OnTransferProgress,
-					credentials: creds
-				);
+				UnityThreadHelper.CreateThread( () => {
+					remote.Fetch( TagFetchMode.Auto,
+						OnProgress,
+					    OnCompletion,
+					    OnUpdateTips,
+						OnTransferProgress,
+					    credentials: creds
+					);
 
-				isFetchComplete = true;
+					isFetchComplete = true;
+				});
 			} catch ( System.Exception e ) {
 				Debug.Log( e );
 			}

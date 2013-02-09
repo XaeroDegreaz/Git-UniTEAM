@@ -43,20 +43,12 @@ namespace UniTEAM {
 			noStyle.normal.background = noTexture;
 		}
 
-		public static void reset(TreeChanges newChanges) {
-			changes = newChanges;
-
-			//# If anything evaluates true here, this means someone is currently working in the commit window, and
-			//# we don't want to interrupt their changes.
-			if ( checkboxValues.ContainsValue( false ) || foldoutValues.ContainsValue( false ) || commitText.Trim().Length > 0 ) {
-				return;
-			}
-
-			checkboxValues.Clear();
-			foldoutValues.Clear();
-		}
-
 		public static void draw( int i ) {
+
+			UnityThreadHelper.CreateThread( () => {
+				changes = Console.repo.Diff.Compare();
+			} );
+
 			bool highlight = true;
 			pathNodes.Clear();
 
@@ -97,6 +89,9 @@ namespace UniTEAM {
 					Console.repo.Index.Stage( stage );
 					Console.repo.Commit( commitText, signature );
 					Console.instance.fetch();
+
+					checkboxValues.Clear();
+					foldoutValues.Clear();
 				}
 
 				commitText = string.Empty;
