@@ -14,13 +14,19 @@ namespace UniTEAM {
 
 		public static Rect rect;
 		public static Vector2 scroll;
+		public static bool isPushing = false;
 
-		public static void draw( int i ) {
+		public static void draw(int i ) {
+
 			scroll = GUILayout.BeginScrollView( scroll );
+
+			GUI.enabled = !isPushing;
 
 			foreach ( Commit commit in Console.repo.Commits.QueryBy( new Filter { Since = Console.branch.Tip, Until = Console.branch.TrackedBranch } ) ) {
 				Console.getUpdateItem( commit, commit.Parents.First(), rect );
 			}
+
+			GUI.enabled = true;
 
 			GUILayout.EndScrollView();
 		

@@ -89,7 +89,11 @@ namespace UniTEAM {
 
 
 			if ( GUILayout.Button( "Push Stashed Commits" ) ) {
-				UnityThreadHelper.CreateThread( () => repo.Network.Push( remote, "refs/heads/master:refs/heads/master", OnPushStatusError, credentials ) );
+				UnityThreadHelper.CreateThread( () => {
+					LocalStashedCommitsWindow.isPushing = true;
+					repo.Network.Push( remote, "refs/heads/master:refs/heads/master", OnPushStatusError, credentials );
+					LocalStashedCommitsWindow.isPushing = false;
+				} );
 			}
 
 			GUILayout.EndHorizontal();
