@@ -24,7 +24,7 @@ namespace UniTEAM {
 						OnTransferProgress,
 					    credentials: creds
 					);
-
+					Console.branch = Console.repo.Head;
 					isFetchComplete = true;
 				});
 			} catch ( System.Exception e ) {
