@@ -43,7 +43,8 @@ namespace UniTEAM {
 			credentials.Password = "!!11OBywan";
 
 			repo = new Repository( Directory.GetCurrentDirectory() );
-			remote = repo.Remotes[ "origin" ];
+			branch = repo.Head;
+			remote = repo.Network.Remotes[ "origin" ];
 
 			OverviewWindow.selectedRemote = remote.Name;
 
@@ -52,19 +53,15 @@ namespace UniTEAM {
 
 		public void fetch() {
 			FetchHelper.isFetchComplete = false;
-			FetchHelper.RemoteFetch( ref remote, ref credentials, this );
-			UncommitedChangesWindow.reset( repo.Diff.Compare() );
-
-			nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
-			branch = repo.Head;
-
-			Repaint();
+			FetchHelper.RemoteFetch( remote, credentials, this );
 		}
 
 		void Update() {
 			if ( FetchHelper.isFetchComplete ) {
 				if ( Time.realtimeSinceStartup >= nextRefetch ) {
 					fetch();
+					Repaint();
+					nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
 				}
 			}
 		}
@@ -82,12 +79,14 @@ namespace UniTEAM {
 			GUILayout.Button( "Overview" );
 
 			if ( GUILayout.Button( "Update" ) ) {
-				FetchHelper.RemoteFetch( ref remote, ref credentials, this );
+				FetchHelper.RemoteFetch( remote, credentials, this );
 			}
 
 
 			if ( GUILayout.Button( "Push Stashed Commits" ) ) {
-				repo.Network.Push( remote, "refs/heads/master:refs/heads/master", OnPushStatusError, credentials );
+				UnityThreadHelper.CreateThread( () => {
+					repo.Network.Push( remote, "refs/heads/master:refs/heads/master", OnPushStatusError, credentials );
+				} );
 			}
 
 			GUILayout.EndHorizontal();
