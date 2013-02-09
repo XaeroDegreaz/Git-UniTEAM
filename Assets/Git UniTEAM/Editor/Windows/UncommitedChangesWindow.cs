@@ -90,7 +90,8 @@ namespace UniTEAM {
 				} else {
 					Console.repo.Index.Stage( stage );
 					Console.repo.Commit( commitText, signature );
-					FetchHelper.RemoteFetch( Console.instance.remote, Console.instance.credentials, Console.instance );
+					Console.repo.Fetch( Console.instance.remote.Name );
+					//FetchHelper.RemoteFetch( Console.instance.remote, Console.instance.credentials, Console.instance );
 
 					checkboxValues.Clear();
 					foldoutValues.Clear();
