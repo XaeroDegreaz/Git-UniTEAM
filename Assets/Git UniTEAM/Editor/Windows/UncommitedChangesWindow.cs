@@ -53,7 +53,13 @@ namespace UniTEAM {
 			pathNodes.Clear();
 
 			scroll = GUILayout.BeginScrollView( scroll );
-			
+
+			if ( changes == null ) {
+				GUILayout.Label( "Loading..." );
+				GUILayout.EndScrollView();
+				return;
+			}
+
 			foreach ( TreeEntryChanges change in changes ) {
 				recurseToAssetFolder( change, ref highlight );
 			}
@@ -88,7 +94,7 @@ namespace UniTEAM {
 				} else {
 					Console.repo.Index.Stage( stage );
 					Console.repo.Commit( commitText, signature );
-					Console.instance.fetch();
+					FetchHelper.RemoteFetch( Console.instance.remote, Console.instance.credentials, Console.instance );
 
 					checkboxValues.Clear();
 					foldoutValues.Clear();

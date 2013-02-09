@@ -14,8 +14,8 @@ namespace UniTEAM {
 
 		private string lastCommitMessage;
 		private static float windowPadding = 5f;
-		private float nextRefetch = 30f;
-		private float refetchFrequency = 30f;
+		private float nextRefetch = 5f;
+		private float refetchFrequency = 5f;
 
 		public Vector2 overviewWindowScroll;
 		public Vector2 updatesOnServerWindowScroll;
@@ -48,20 +48,16 @@ namespace UniTEAM {
 
 			OverviewWindow.selectedRemote = remote.Name;
 
-			fetch();
-		}
-
-		public void fetch() {
-			FetchHelper.isFetchComplete = false;
 			FetchHelper.RemoteFetch( remote, credentials, this );
 		}
 
 		void Update() {
 			if ( FetchHelper.isFetchComplete ) {
 				if ( Time.realtimeSinceStartup >= nextRefetch ) {
-					fetch();
-					Repaint();
+					FetchHelper.RemoteFetch( remote, credentials, this );
 					nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
+				} else {
+					Repaint();
 				}
 			}
 		}

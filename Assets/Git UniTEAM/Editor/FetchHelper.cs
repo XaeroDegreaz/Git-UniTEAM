@@ -15,6 +15,8 @@ namespace UniTEAM {
 		public static bool isFetchComplete = false;
 
 		public static void RemoteFetch( Remote remote, Credentials creds, Console console ) {
+			isFetchComplete = false;
+
 			try {
 				UnityThreadHelper.CreateThread( () => {
 					remote.Fetch( TagFetchMode.Auto,
@@ -24,6 +26,7 @@ namespace UniTEAM {
 						OnTransferProgress,
 					    credentials: creds
 					);
+
 					Console.branch = Console.repo.Head;
 					isFetchComplete = true;
 				});
