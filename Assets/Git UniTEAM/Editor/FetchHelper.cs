@@ -12,7 +12,7 @@ using UniTEAM;
 namespace UniTEAM {
 	public class FetchHelper {
 
-		public static bool isFetchComplete = false;
+		public static bool isFetchComplete = true;
 
 		public static void RemoteFetch( Remote remote, Credentials creds, Console console ) {
 			isFetchComplete = false;

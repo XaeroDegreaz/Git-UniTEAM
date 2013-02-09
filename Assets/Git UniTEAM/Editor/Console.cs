@@ -48,7 +48,8 @@ namespace UniTEAM {
 
 			OverviewWindow.selectedRemote = remote.Name;
 
-			FetchHelper.RemoteFetch( remote, credentials, this );
+			//FetchHelper.RemoteFetch( remote, credentials, this );
+			Repaint();
 		}
 
 		void Update() {
@@ -56,8 +57,6 @@ namespace UniTEAM {
 				if ( Time.realtimeSinceStartup >= nextRefetch ) {
 					FetchHelper.RemoteFetch( remote, credentials, this );
 					nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
-				} else {
-					Repaint();
 				}
 			}
 		}
