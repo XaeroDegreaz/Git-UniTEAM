@@ -28,6 +28,7 @@ namespace UniTEAM {
 		public static Rect rect;
 		private Vector2 scroll;
 		private string commitText = string.Empty;
+		private TreeView treeView;
 
 		public UncommitedChangesWindow(  ) {
 
@@ -47,6 +48,7 @@ namespace UniTEAM {
 		public void reset(TreeChanges newChanges, Console console) {
 			changes = newChanges;
 			untracked = console.repo.Index.RetrieveStatus().Untracked;
+			treeView = new TreeView();
 
 			//# If anything evaluates true here, this means someone is currently working in the commit window, and
 			//# we don't want to interrupt their changes.
@@ -61,22 +63,22 @@ namespace UniTEAM {
 		public void draw(Console console, int i ) {
 			bool highlight = true;
 			pathNodes.Clear();
+			treeView.nodes.Clear();
 
 			scroll = GUILayout.BeginScrollView( scroll );
 
 			changes = changes ?? console.repo.Diff.Compare();
 
-			
 			foreach ( TreeEntryChanges change in changes ) {
-				GUI.enabled = true;
-				recurseToAssetFolder( change, ref highlight );
+				buildTreeView( change );
 			}
 
-			/*foreach ( string untrackedFile in untracked ) {
-				recurseToAssetFolder( untrackedFile, ref highlight );
-			}*/
+			foreach ( string untrackedFile in untracked ) {
+				buildTreeView( untrackedFile );
+			}
 
-			GUI.enabled = true;
+			drawTreeView();
+
 			GUILayout.EndScrollView();
 
 			GUILayout.Label( "Commit message:" );
@@ -114,81 +116,74 @@ namespace UniTEAM {
 			
 		}
 
-		private void recurseToAssetFolder( TreeEntryChanges change, ref bool highlight) {
-			int spacing = 20;
-			bool iterationIsDir = false;
-			string[] pathArray = change.Path.Split( "\\".ToCharArray() );
+		private void drawTreeView() {
 
-			for ( int i = 0; i < pathArray.Length; i++ ) {
+			foreach ( KeyValuePair<string, TreeViewNode> treeViewNode in treeView.nodes ) {
 
-				if ( pathNodes.Contains( pathArray[ i ] ) || !GUI.enabled ) {
+				if ( !foldoutValues.ContainsKey( treeViewNode.Value.name ) ) {
+					foldoutValues.Add( treeViewNode.Value.name, true );
+				}
+
+				EditorGUILayout.BeginHorizontal( highlightStyle );
+
+				foldoutValues[ treeViewNode.Value.name ] = EditorGUILayout.Foldout( foldoutValues[ treeViewNode.Value.name ], treeViewNode.Value.name );
+
+				EditorGUILayout.EndHorizontal();
+
+				if ( !foldoutValues[ treeViewNode.Value.name ] ) {
 					continue;
 				}
 
-				highlight = !highlight;
+				foreach ( TreeViewItem treeViewItem in treeViewNode.Value.items ) {
 
-				EditorGUILayout.BeginHorizontal( ( highlight ) ? highlightStyle : noStyle );
-
-				//# This must be a directory...
-				if ( i < pathArray.Length - 1 ) {
-					pathNodes.Add( pathArray[ i ] );
-
-					if ( !foldoutValues.ContainsKey( pathArray[ i ] ) ) {
-						foldoutValues.Add( pathArray[ i ], true );
+					if ( !checkboxValues.ContainsKey( treeViewItem.path ) ) {
+						checkboxValues.Add( treeViewItem.path, !treeViewItem.status.Equals( "Untracked" ) );
 					}
-					
-					iterationIsDir = true;
-				} else {
-					iterationIsDir = false;
-				}
 
-				if ( !checkboxValues.ContainsKey( change.Path ) ) {
-					checkboxValues.Add( change.Path, true );
-				}
+					EditorGUILayout.BeginHorizontal( noStyle );
+					GUILayout.Space( 15f );
 
-				GUILayout.Space( i * spacing );
+					checkboxValues[ treeViewItem.path ] = GUILayout.Toggle( checkboxValues[ treeViewItem.path ], treeViewItem.name );
 
-				if ( !iterationIsDir ) {
-					checkboxValues[ change.Path ] = GUILayout.Toggle( checkboxValues[ change.Path ], pathArray[ i ] );
-					GUILayout.Label( "[" + change.Status + "]", statusStyle );
+					GUILayout.Label( "[" + treeViewItem.status + "]", statusStyle );
 
 					if ( GUILayout.Button( "Diff", GUILayout.Width( 50 ) ) ) {
-						Diff.init( change.Patch );
+						Diff.init( treeViewItem.patchDiff );
 					}
 
+					EditorGUILayout.EndHorizontal();
 				}
-				else {
-
-					for ( int j = 0; j <= i; j++ ) {
-						try {
-							if ( !foldoutValues[ pathArray[ j ] ] ) {
-								GUI.enabled = false;
-								break;
-							}
-							else {
-								GUI.enabled = true;
-							}
-						}
-						catch {}
-					}
-
-					foldoutValues[ pathArray[ i ] ] = EditorGUILayout.Foldout( foldoutValues[ pathArray[ i ] ], pathArray[ i ] );
-
-					//GUI.enabled = foldoutValues[ pathArray[ i ] ];
-				}
-
-				EditorGUILayout.EndHorizontal();
 			}
 		}
 
-		/*private void recurseToAssetFolder( string change, ref bool highlight ) {
-			int spacing = 20;
+		private void buildTreeView( TreeEntryChanges change ) {
+			int index = change.Path.LastIndexOf( "\\" );
+			string folder = ( index >= 0 ) ? change.Path.Substring( 0, index ) : "\\";
+
+			TreeViewNode node = new TreeViewNode( folder.Trim() );
+			TreeViewItem item = new TreeViewItem( change );
+
+			treeView.tryAdd( node ).tryAdd( item );
+		}
+
+		private void buildTreeView( string change) {
+			int index = change.LastIndexOf( "\\" );
+			string folder = ( index >= 0 ) ? change.Substring( 0, index ) : "\\";
+			
+			TreeViewNode node = new TreeViewNode( folder.Trim() );
+			TreeViewItem item = new TreeViewItem( change );
+
+			treeView.tryAdd( node ).tryAdd( item );
+			//node.tryAdd( item );
+			
+
+			/*int spacing = 20;
 			bool iterationIsDir = false;
 			string[] pathArray = change.Split( "\\".ToCharArray() );
 
 			for ( int i = 0; i < pathArray.Length; i++ ) {
 
-				if ( pathNodes.Contains( pathArray[ i ] ) ) {
+				if ( pathNodes.Contains( pathArray[ i ] ) || !GUI.enabled ) {
 					continue;
 				}
 
@@ -217,21 +212,33 @@ namespace UniTEAM {
 
 				if ( !iterationIsDir ) {
 					checkboxValues[ change ] = GUILayout.Toggle( checkboxValues[ change ], pathArray[ i ] );
-					GUILayout.Label( "[Unversioned]", statusStyle );
+					GUILayout.Label( "[Untracked]", statusStyle );
 
 					if ( GUILayout.Button( "Diff", GUILayout.Width( 50 ) ) ) {
 						Diff.init( change );
 					}
 
 				} else {
+
+					for ( int j = 0; j <= i; j++ ) {
+						try {
+							if ( !foldoutValues[ pathArray[ j ] ] ) {
+								GUI.enabled = false;
+								break;
+							} else {
+								GUI.enabled = true;
+							}
+						} catch { }
+					}
+
 					foldoutValues[ pathArray[ i ] ] = EditorGUILayout.Foldout( foldoutValues[ pathArray[ i ] ], pathArray[ i ] );
-					
-					GUI.enabled = foldoutValues[ pathArray[ i ] ];
+
+					//GUI.enabled = foldoutValues[ pathArray[ i ] ];
 				}
 
 				EditorGUILayout.EndHorizontal();
-			}
-		}*/
+			}*/
+		}
 
 		public static Texture2D getGenericTexture( int width, int height, Color col ) {
 			Color[] pix = new Color[ width * height ];
@@ -249,6 +256,59 @@ namespace UniTEAM {
 			result.hideFlags ^= HideFlags.NotEditable;
 
 			return result;
+		}
+	}
+
+	public class TreeView {
+		public SortedDictionary<string, TreeViewNode> nodes = new SortedDictionary<string, TreeViewNode>();
+
+		public TreeViewNode tryAdd( TreeViewNode node ) {
+
+			try {
+				nodes.Add( node.name, node );
+				return node;
+			}
+			catch ( System.Exception e ) {
+				return nodes[ node.name ];
+			}
+		}
+	}
+
+	public class TreeViewNode {
+		public string name;
+		public List<TreeViewItem> items = new List<TreeViewItem>();
+
+		public TreeViewNode( string name ) {
+			this.name = name;
+		}
+
+		public void tryAdd( TreeViewItem item ) {
+			try {
+				items.Add( item );
+			} catch ( System.Exception e ) {
+				Debug.Log( e );
+			}
+		}
+	}
+
+	public class TreeViewItem {
+		public string name;
+		public string path;
+		public string status;
+		public string patchDiff;
+
+		public TreeViewItem(TreeEntryChanges change) {
+			name = new FileInfo( change.Path ).Name;
+			path = change.Path;
+			status = change.Status.ToString();
+			patchDiff = change.Patch;
+		}
+
+		public TreeViewItem( string path ) {
+			this.path = path;
+			name = new FileInfo( path ).Name;
+			status = "Untracked";
+			patchDiff = "New file";
 		}
 	}
 
