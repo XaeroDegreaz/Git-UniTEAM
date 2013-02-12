@@ -13,9 +13,9 @@ namespace UniTEAM {
 	public class Console : EditorWindow {
 
 		private string lastCommitMessage;
-		private static float windowPadding = 5f;
+		private const float windowPadding = 5f;
 		private float nextRefetch = -1;
-		private float refetchFrequency = 5f;
+		private const float refetchFrequency = 5f;
 
 		public Vector2 overviewWindowScroll;
 		public Vector2 updatesOnServerWindowScroll;
@@ -23,9 +23,9 @@ namespace UniTEAM {
 		public Vector2 localStashedCommitsWindowScroll;
 
 		public UncommitedChangesWindow uncommitedChangesWindow;
-		public static Repository repo;
+		public Repository repo;
 		public Remote remote;
-		public static Branch branch;
+		public Branch branch;
 		public Credentials credentials;
 
 		[MenuItem( "Team/Git UniTEAM Console" )]
@@ -33,17 +33,15 @@ namespace UniTEAM {
 			EditorWindow.GetWindow( typeof( Console ), false, "UniTEAM" );
 		}
 
-		public static Console instance;
-
 		void OnEnable() {
-			nextRefetch = Time.realtimeSinceStartup + 5f;
-			instance = this;
+			//nextRefetch = Time.realtimeSinceStartup + 5f;
+			
 			credentials = new Credentials();
 			credentials.Username = "xaerodegreaz";
 			credentials.Password = "!!11OBywan";
 
 			repo = new Repository( Directory.GetCurrentDirectory() );
-			remote = repo.Remotes[ "origin" ];
+			remote = repo.Network.Remotes[ "origin" ];
 
 			OverviewWindow.selectedRemote = remote.Name;
 		}
@@ -52,7 +50,10 @@ namespace UniTEAM {
 			try {
 				FetchHelper.isFetchComplete = false;
 				FetchHelper.RemoteFetch( remote, credentials );
-				UncommitedChangesWindow.reset( repo.Diff.Compare() );
+
+				if ( uncommitedChangesWindow != null ) {
+					uncommitedChangesWindow.reset( repo.Diff.Compare() );
+				}
 
 				nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
 				branch = repo.Head;
@@ -78,6 +79,8 @@ namespace UniTEAM {
 				//# reducing the amount of function calls during ongui
 				if ( uncommitedChangesWindow == null ) {
 					uncommitedChangesWindow = new UncommitedChangesWindow();
+
+					uncommitedChangesWindow.reset( repo.Diff.Compare() );
 				}
 
 				fixWindowRects();
@@ -106,17 +109,35 @@ namespace UniTEAM {
 					GUILayout.Window( 4, currentErrorLocation, errorWindow, "Error:" );
 				}
 				else {
-					GUILayout.Window( 0, OverviewWindow.rect, OverviewWindow.draw, "Overview" );
-					GUILayout.Window( 1, UncommitedChangesWindow.rect, UncommitedChangesWindow.draw, "Uncommited Changes" );
-					GUILayout.Window( 2, UpdatesOnServerWindow.rect, UpdatesOnServerWindow.draw,
+					GUILayout.Window( 0, OverviewWindow.rect, windowDelegate, "Overview" );
+					GUILayout.Window( 1, UncommitedChangesWindow.rect, windowDelegate, "Uncommited Changes" );
+					GUILayout.Window( 2, UpdatesOnServerWindow.rect, windowDelegate,
 					                  "Updates on Server [Commits Behind: " + repo.Head.BehindBy + "]" );
-					GUILayout.Window( 3, LocalStashedCommitsWindow.rect, LocalStashedCommitsWindow.draw,
+					GUILayout.Window( 3, LocalStashedCommitsWindow.rect, windowDelegate,
 					                  "Local Commit Stash [Commits Ahead: " + repo.Head.AheadBy + "]" );
 				}
 
 				EndWindows();
 			}
 			catch {}
+		}
+
+		//# Using this to pass the console reference. Trying not to leak stuff with static properties...
+		private void windowDelegate( int id ) {
+			switch ( id ) {
+				case 0:
+					OverviewWindow.draw( this, id );
+					break;
+				case 1:
+					uncommitedChangesWindow.draw( this, id );
+					break;
+				case 2:
+					UpdatesOnServerWindow.draw( this, id );
+					break;
+				case 3:
+					LocalStashedCommitsWindow.draw( this, id );
+					break;
+			}
 		}
 
 		private void OnPushStatusError( PushStatusError pushStatusErrors ) {
@@ -161,7 +182,8 @@ namespace UniTEAM {
 			);
 		}
 
-		public static void getUpdateItem( Commit commit, Commit lastCommit, Rect windowRect ) {
+		public static void getUpdateItem(Commit commit, Commit lastCommit, Rect windowRect ) {
+
 			CommitItem item = new CommitItem( commit );
 
 			float horizontalWidth = ( windowRect.width ) - ( windowPadding * 2 ) - 25;
@@ -171,8 +193,7 @@ namespace UniTEAM {
 			Rect r = EditorGUILayout.BeginHorizontal( "Button", GUILayout.Width( horizontalWidth ) );
 
 			if ( GUI.Button( r, GUIContent.none ) ) {
-				Debug.Log( "# Changed files: " + repo.Diff.Compare( commit.Tree, lastCommit.Tree ).Count() );
-				
+				Debug.Log( "Commit pressed" );
 			}
 
 			GUILayout.Label( item.commitMessage.Substring( 0, Mathf.Min( item.commitMessage.Length, 100 ) ), GUILayout.Width( halfWidth ) );

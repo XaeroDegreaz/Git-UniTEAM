@@ -13,20 +13,20 @@ namespace UniTEAM {
 	public class UncommitedChangesWindow {
 
 		
-		private static List<string> pathNodes = new List<string>();
-		private static Dictionary<string, bool> checkboxValues = new Dictionary<string, bool>();
-		private static Dictionary<string, bool> foldoutValues = new Dictionary<string, bool>();
-		private static GUIStyle statusStyle;
-		private static GUIStyle highlightStyle;
-		private static GUIStyle noStyle;
+		private List<string> pathNodes = new List<string>();
+		private Dictionary<string, bool> checkboxValues = new Dictionary<string, bool>();
+		private Dictionary<string, bool> foldoutValues = new Dictionary<string, bool>();
+		private GUIStyle statusStyle;
+		private GUIStyle highlightStyle;
+		private GUIStyle noStyle;
 
 		private Texture2D highlightTexture;
 		private Texture2D noTexture;
 
-		public static TreeChanges changes;
+		public TreeChanges changes;
 		public static Rect rect;
-		public static Vector2 scroll;
-		public static string commitText = string.Empty;
+		private static Vector2 scroll;
+		private string commitText = string.Empty;
 
 		public UncommitedChangesWindow(  ) {
 
@@ -43,7 +43,7 @@ namespace UniTEAM {
 			noStyle.normal.background = noTexture;
 		}
 
-		public static void reset(TreeChanges newChanges) {
+		public void reset(TreeChanges newChanges) {
 			changes = newChanges;
 
 			//# If anything evaluates true here, this means someone is currently working in the commit window, and
@@ -56,13 +56,13 @@ namespace UniTEAM {
 			foldoutValues.Clear();
 		}
 
-		public static void draw( int i ) {
+		public void draw(Console console, int i ) {
 			bool highlight = true;
 			pathNodes.Clear();
 
 			scroll = GUILayout.BeginScrollView( scroll );
 
-			changes = changes ?? Console.repo.Diff.Compare();
+			changes = changes ?? console.repo.Diff.Compare();
 
 			foreach ( TreeEntryChanges change in changes ) {
 				recurseToAssetFolder( change, ref highlight );
@@ -96,9 +96,9 @@ namespace UniTEAM {
 					Console.currentError = "Please enter a commit message.";
 					Console.currentErrorLocation = rect;
 				} else {
-					Console.repo.Index.Stage( stage );
-					Console.repo.Commit( commitText, signature );
-					Console.instance.fetch();
+					console.repo.Index.Stage( stage );
+					console.repo.Commit( commitText, signature );
+					console.fetch();
 				}
 
 				commitText = string.Empty;
@@ -106,7 +106,7 @@ namespace UniTEAM {
 			
 		}
 
-		private static void recurseToAssetFolder( TreeEntryChanges change, ref bool highlight) {
+		private void recurseToAssetFolder( TreeEntryChanges change, ref bool highlight) {
 			int spacing = 20;
 			bool iterationIsDir = false;
 			string[] pathArray = change.Path.Split( "\\".ToCharArray() );

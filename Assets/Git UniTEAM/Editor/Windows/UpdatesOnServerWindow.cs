@@ -16,10 +16,10 @@ namespace UniTEAM {
 		private static Vector2 scroll;
 		public static Rect rect;
 
-		public static void draw( int id ) {
+		public static void draw(Console console, int id ) {
 			scroll = GUILayout.BeginScrollView( scroll );
 
-			foreach ( Commit commit in Console.repo.Commits.QueryBy( new Filter { Since = Console.branch.TrackedBranch, Until = Console.branch.Tip } ) ) {
+			foreach ( Commit commit in console.repo.Commits.QueryBy( new Filter { Since = console.branch.TrackedBranch, Until = console.branch.Tip } ) ) {
 				Console.getUpdateItem( commit, commit.Parents.First(), rect );
 			}
 

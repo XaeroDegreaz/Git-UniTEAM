@@ -13,11 +13,11 @@ namespace UniTEAM {
 	public class LocalStashedCommitsWindow {
 
 		public static Rect rect;
-		public static Vector2 scroll;
+		private static Vector2 scroll = Vector2.zero;
 		public static bool isPushing = false;
 		private static bool doesRequireFetch = false;
 
-		public static void draw(int i ) {
+		public static void draw(Console console, int i ) {
 
 			scroll = GUILayout.BeginScrollView( scroll );
 
@@ -28,10 +28,10 @@ namespace UniTEAM {
 			}else if ( !isPushing && doesRequireFetch ) {
 				//# Trigger a fetch
 				doesRequireFetch = false;
-				Console.instance.fetch();
+				console.fetch();
 			}
 
-			foreach ( Commit commit in Console.repo.Commits.QueryBy( new Filter { Since = Console.branch.Tip, Until = Console.branch.TrackedBranch } ) ) {
+			foreach ( Commit commit in console.repo.Commits.QueryBy( new Filter { Since = console.branch.Tip, Until = console.branch.TrackedBranch } ) ) {
 				Console.getUpdateItem( commit, commit.Parents.First(), rect );
 			}
 

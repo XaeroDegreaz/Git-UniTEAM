@@ -14,18 +14,18 @@ namespace UniTEAM {
 		public static bool isSelecting;
 		public static Rect rect;
 
-		public static void draw( int id ) {
-			GUILayout.Label( "Repository: " + Console.repo.Info.WorkingDirectory );
+		public static void draw(Console console, int id ) {
+			GUILayout.Label( "Repository: " + console.repo.Info.WorkingDirectory );
 
 			//GUILayout.BeginHorizontal();
 			//GUILayout.Label( "Remote: " + Console.repo.Remotes[ "origin" ].Url );
 			//getRemoteList();
 			//GUILayout.EndHorizontal();
 
-			GUILayout.Label( "Current branch: " + Console.branch.Name );
+			GUILayout.Label( "Current branch: " + console.branch.Name );
 		}
 
-		static void getRemoteList() {
+		static void getRemoteList(Console console) {
 			GUILayout.BeginVertical( "Box" );
 			if ( GUILayout.Button( selectedRemote ) ) {
 				isSelecting = !isSelecting;
@@ -33,7 +33,7 @@ namespace UniTEAM {
 
 			if ( isSelecting ) {
 				int i = 0;
-				foreach ( Remote b in Console.repo.Remotes ) {
+				foreach ( Remote b in console.repo.Network.Remotes ) {
 					if ( GUI.Button( new Rect(0, 30 + (i*30), 20, 20), b.Name  ) ) {
 						selectedRemote = b.Name;
 						isSelecting = false;

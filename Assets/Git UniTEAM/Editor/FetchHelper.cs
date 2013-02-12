@@ -33,26 +33,26 @@ namespace UniTEAM {
 		}
 
 		public static void OnTransferProgress( TransferProgress progress ) {
-			//Debug.LogWarning( progress );
+			Debug.LogWarning( "FetchHelper - OnTransferProgress => "+progress );
 		}
 
 		public static int OnUpdateTips( string referenceName, ObjectId oldId, ObjectId newId ) {
 			isFetchComplete = true;
 
-			//Debug.LogWarning("Tips updated!"+ referenceName + "/" + oldId + "/" + newId );
+			Debug.LogWarning( "FetchHelper - OnUpdateTips => " + referenceName + " / " + oldId + " / " + newId );
 
 			return 0;
 		}
 
 		public static int OnCompletion( RemoteCompletionType remoteCompletionType ) {
-			//Debug.LogWarning( "Complete" );
+			Debug.LogWarning( "FetchHelper - OnCompletion => "+remoteCompletionType );
 			return 0;
 		}
 
 		public static void OnProgress( string serverProgressOutput ) {
 			isFetchComplete = false;
 
-			//Debug.LogWarning( serverProgressOutput );
+			Debug.LogWarning("FetchHelper - OnProgress => "+ serverProgressOutput );
 		}
 	}
 }
