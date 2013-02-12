@@ -24,6 +24,7 @@ namespace UniTEAM {
 		private Texture2D noTexture;
 
 		public TreeChanges changes;
+		public IEnumerable<string> untracked; 
 		public static Rect rect;
 		private Vector2 scroll;
 		private string commitText = string.Empty;
@@ -43,8 +44,9 @@ namespace UniTEAM {
 			noStyle.normal.background = noTexture;
 		}
 
-		public void reset(TreeChanges newChanges) {
+		public void reset(TreeChanges newChanges, Console console) {
 			changes = newChanges;
+			untracked = console.repo.Index.RetrieveStatus().Untracked;
 
 			//# If anything evaluates true here, this means someone is currently working in the commit window, and
 			//# we don't want to interrupt their changes.
@@ -64,9 +66,15 @@ namespace UniTEAM {
 
 			changes = changes ?? console.repo.Diff.Compare();
 
+			
 			foreach ( TreeEntryChanges change in changes ) {
+				GUI.enabled = true;
 				recurseToAssetFolder( change, ref highlight );
 			}
+
+			/*foreach ( string untrackedFile in untracked ) {
+				recurseToAssetFolder( untrackedFile, ref highlight );
+			}*/
 
 			GUI.enabled = true;
 			GUILayout.EndScrollView();
@@ -113,7 +121,7 @@ namespace UniTEAM {
 
 			for ( int i = 0; i < pathArray.Length; i++ ) {
 
-				if ( pathNodes.Contains( pathArray[ i ] ) || !GUI.enabled) {
+				if ( pathNodes.Contains( pathArray[ i ] ) || !GUI.enabled ) {
 					continue;
 				}
 
@@ -145,17 +153,85 @@ namespace UniTEAM {
 					GUILayout.Label( "[" + change.Status + "]", statusStyle );
 
 					if ( GUILayout.Button( "Diff", GUILayout.Width( 50 ) ) ) {
-						Diff.init(change.Patch);
+						Diff.init( change.Patch );
 					}
 
-				} else {
+				}
+				else {
+
+					for ( int j = 0; j <= i; j++ ) {
+						try {
+							if ( !foldoutValues[ pathArray[ j ] ] ) {
+								GUI.enabled = false;
+								break;
+							}
+							else {
+								GUI.enabled = true;
+							}
+						}
+						catch {}
+					}
+
 					foldoutValues[ pathArray[ i ] ] = EditorGUILayout.Foldout( foldoutValues[ pathArray[ i ] ], pathArray[ i ] );
-					GUI.enabled = foldoutValues[ pathArray[ i ] ];
+
+					//GUI.enabled = foldoutValues[ pathArray[ i ] ];
 				}
 
 				EditorGUILayout.EndHorizontal();
 			}
 		}
+
+		/*private void recurseToAssetFolder( string change, ref bool highlight ) {
+			int spacing = 20;
+			bool iterationIsDir = false;
+			string[] pathArray = change.Split( "\\".ToCharArray() );
+
+			for ( int i = 0; i < pathArray.Length; i++ ) {
+
+				if ( pathNodes.Contains( pathArray[ i ] ) ) {
+					continue;
+				}
+
+				highlight = !highlight;
+
+				EditorGUILayout.BeginHorizontal( ( highlight ) ? highlightStyle : noStyle );
+
+				//# This must be a directory...
+				if ( i < pathArray.Length - 1 ) {
+					pathNodes.Add( pathArray[ i ] );
+
+					if ( !foldoutValues.ContainsKey( pathArray[ i ] ) ) {
+						foldoutValues.Add( pathArray[ i ], true );
+					}
+
+					iterationIsDir = true;
+				} else {
+					iterationIsDir = false;
+				}
+
+				if ( !checkboxValues.ContainsKey( change ) ) {
+					checkboxValues.Add( change, true );
+				}
+
+				GUILayout.Space( i * spacing );
+
+				if ( !iterationIsDir ) {
+					checkboxValues[ change ] = GUILayout.Toggle( checkboxValues[ change ], pathArray[ i ] );
+					GUILayout.Label( "[Unversioned]", statusStyle );
+
+					if ( GUILayout.Button( "Diff", GUILayout.Width( 50 ) ) ) {
+						Diff.init( change );
+					}
+
+				} else {
+					foldoutValues[ pathArray[ i ] ] = EditorGUILayout.Foldout( foldoutValues[ pathArray[ i ] ], pathArray[ i ] );
+					
+					GUI.enabled = foldoutValues[ pathArray[ i ] ];
+				}
+
+				EditorGUILayout.EndHorizontal();
+			}
+		}*/
 
 		public static Texture2D getGenericTexture( int width, int height, Color col ) {
 			Color[] pix = new Color[ width * height ];

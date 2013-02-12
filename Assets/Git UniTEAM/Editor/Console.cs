@@ -57,7 +57,7 @@ namespace UniTEAM {
 				FetchHelper.RemoteFetch( remote, credentials, this );
 
 				if ( uncommitedChangesWindow != null ) {
-					uncommitedChangesWindow.reset( repo.Diff.Compare() );
+					uncommitedChangesWindow.reset( repo.Diff.Compare(), this );
 				}
 
 				nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
@@ -85,7 +85,7 @@ namespace UniTEAM {
 				if ( uncommitedChangesWindow == null ) {
 					uncommitedChangesWindow = new UncommitedChangesWindow();
 
-					uncommitedChangesWindow.reset( repo.Diff.Compare() );
+					uncommitedChangesWindow.reset( repo.Diff.Compare(), this );
 				}
 
 				fixWindowRects();
