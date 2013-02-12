@@ -1,11 +1,7 @@
-using System;
 using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using LibGit2Sharp;
-using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -61,7 +57,6 @@ namespace UniTEAM {
 		}
 
 		public void draw(Console console, int i ) {
-			bool highlight = true;
 			pathNodes.Clear();
 			treeView.nodes.Clear();
 
@@ -118,8 +113,10 @@ namespace UniTEAM {
 
 		private void drawTreeView() {
 
+			//# Loop through each node (folder)
 			foreach ( KeyValuePair<string, TreeViewNode> treeViewNode in treeView.nodes ) {
 
+				//# Add a foldup entry if there isn't already one
 				if ( !foldoutValues.ContainsKey( treeViewNode.Value.name ) ) {
 					foldoutValues.Add( treeViewNode.Value.name, true );
 				}
@@ -130,12 +127,15 @@ namespace UniTEAM {
 
 				EditorGUILayout.EndHorizontal();
 
+				//# If the foldup is folded, then just continue to the next iteration and don't show children
 				if ( !foldoutValues[ treeViewNode.Value.name ] ) {
 					continue;
 				}
 
+				//# Loop through each actual file in this node
 				foreach ( TreeViewItem treeViewItem in treeViewNode.Value.items ) {
 
+					//# Add checkbox entry if not already there. Untracked files are unchecked by default.
 					if ( !checkboxValues.ContainsKey( treeViewItem.path ) ) {
 						checkboxValues.Add( treeViewItem.path, !treeViewItem.status.Equals( "Untracked" ) );
 					}
@@ -147,6 +147,7 @@ namespace UniTEAM {
 
 					GUILayout.Label( "[" + treeViewItem.status + "]", statusStyle );
 
+					//# Button for launching a diff instance.
 					if ( GUILayout.Button( "Diff", GUILayout.Width( 50 ) ) ) {
 						Diff.init( treeViewItem.patchDiff );
 					}
@@ -174,70 +175,6 @@ namespace UniTEAM {
 			TreeViewItem item = new TreeViewItem( change );
 
 			treeView.tryAdd( node ).tryAdd( item );
-			//node.tryAdd( item );
-			
-
-			/*int spacing = 20;
-			bool iterationIsDir = false;
-			string[] pathArray = change.Split( "\\".ToCharArray() );
-
-			for ( int i = 0; i < pathArray.Length; i++ ) {
-
-				if ( pathNodes.Contains( pathArray[ i ] ) || !GUI.enabled ) {
-					continue;
-				}
-
-				highlight = !highlight;
-
-				EditorGUILayout.BeginHorizontal( ( highlight ) ? highlightStyle : noStyle );
-
-				//# This must be a directory...
-				if ( i < pathArray.Length - 1 ) {
-					pathNodes.Add( pathArray[ i ] );
-
-					if ( !foldoutValues.ContainsKey( pathArray[ i ] ) ) {
-						foldoutValues.Add( pathArray[ i ], true );
-					}
-
-					iterationIsDir = true;
-				} else {
-					iterationIsDir = false;
-				}
-
-				if ( !checkboxValues.ContainsKey( change ) ) {
-					checkboxValues.Add( change, true );
-				}
-
-				GUILayout.Space( i * spacing );
-
-				if ( !iterationIsDir ) {
-					checkboxValues[ change ] = GUILayout.Toggle( checkboxValues[ change ], pathArray[ i ] );
-					GUILayout.Label( "[Untracked]", statusStyle );
-
-					if ( GUILayout.Button( "Diff", GUILayout.Width( 50 ) ) ) {
-						Diff.init( change );
-					}
-
-				} else {
-
-					for ( int j = 0; j <= i; j++ ) {
-						try {
-							if ( !foldoutValues[ pathArray[ j ] ] ) {
-								GUI.enabled = false;
-								break;
-							} else {
-								GUI.enabled = true;
-							}
-						} catch { }
-					}
-
-					foldoutValues[ pathArray[ i ] ] = EditorGUILayout.Foldout( foldoutValues[ pathArray[ i ] ], pathArray[ i ] );
-
-					//GUI.enabled = foldoutValues[ pathArray[ i ] ];
-				}
-
-				EditorGUILayout.EndHorizontal();
-			}*/
 		}
 
 		public static Texture2D getGenericTexture( int width, int height, Color col ) {
@@ -263,12 +200,11 @@ namespace UniTEAM {
 		public SortedDictionary<string, TreeViewNode> nodes = new SortedDictionary<string, TreeViewNode>();
 
 		public TreeViewNode tryAdd( TreeViewNode node ) {
-
 			try {
 				nodes.Add( node.name, node );
 				return node;
 			}
-			catch ( System.Exception e ) {
+			catch {
 				return nodes[ node.name ];
 			}
 		}

@@ -1,30 +1,18 @@
-using System;
 using UnityEngine;
-using UnityEditor;
 using LibGit2Sharp;
-using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using UniTEAM;
 
 namespace UniTEAM {
 	public class FetchHelper {
 
 		public static void RemoteFetch( Remote remote, Credentials creds, Console console ) {
 			try {
-				//UnityThreadHelper.CreateThread( () => {
-				remote.Fetch( TagFetchMode.Auto,
-					OnProgress,
-					OnCompletion,
-					OnUpdateTips,
-					OnTransferProgress,
-					credentials: creds
-				);
-
-				console.isFetchComplete = true;
-				//} );
+				UnityThreadHelper.CreateThread( () => remote.Fetch( TagFetchMode.Auto,
+				                                                    OnProgress,
+				                                                    OnCompletion,
+				                                                    OnUpdateTips,
+				                                                    OnTransferProgress,
+				                                                    credentials: creds
+					                                      ) );
 			} catch ( System.Exception e ) {
 				Debug.Log( e );
 			}

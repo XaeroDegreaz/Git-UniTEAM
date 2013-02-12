@@ -1,12 +1,5 @@
 using UnityEngine;
 using UnityEditor;
-using System.Linq;
-using LibGit2Sharp;
-using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 
 namespace UniTEAM {
 

@@ -1,11 +1,7 @@
-using System;
+using System.ComponentModel;
 using UnityEngine;
-using System.Linq;
 using UnityEditor;
 using LibGit2Sharp;
-using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -15,7 +11,7 @@ namespace UniTEAM {
 		private string lastCommitMessage;
 		private const float windowPadding = 5f;
 		private float nextRefetch = -1;
-		private const float refetchFrequency = 5f;
+		private const float refetchFrequency = 15f;
 
 		public Vector2 overviewWindowScroll;
 		public Vector2 updatesOnServerWindowScroll;
@@ -28,6 +24,10 @@ namespace UniTEAM {
 		public Branch branch;
 		public Credentials credentials;
 		public bool isFetchComplete = false;
+		public bool isOkToPoll = false;
+		public IEnumerable<Commit> commitsOnServer = new BindingList<Commit>();
+		public IEnumerable<Commit> commitsInStash = new BindingList<Commit>();
+		private bool isConsoleReady = false;
 
 		[MenuItem( "Team/Git UniTEAM Console" )]
 		static void init() {
@@ -35,16 +35,15 @@ namespace UniTEAM {
 		}
 
 		void OnEnable() {
-			//nextRefetch = Time.realtimeSinceStartup + 5f;
-			
 			credentials = new Credentials();
 			credentials.Username = "xaerodegreaz";
 			credentials.Password = "!!11OBywan";
 
 			repo = new Repository( Directory.GetCurrentDirectory() );
+			branch = repo.Head;
 			remote = repo.Network.Remotes[ "origin" ];
 
-			OverviewWindow.selectedRemote = remote.Name;
+			isConsoleReady = true;
 		}
 
 		void OnDisable() {
@@ -53,7 +52,11 @@ namespace UniTEAM {
 
 		public void fetch() {
 			try {
-				isFetchComplete = false;
+				//isFetchComplete = false;
+
+				commitsOnServer = repo.Commits.QueryBy( new Filter { Since = branch.TrackedBranch, Until = branch.Tip } );
+				commitsInStash = repo.Commits.QueryBy( new Filter { Since = branch.Tip, Until = branch.TrackedBranch } );
+
 				FetchHelper.RemoteFetch( remote, credentials, this );
 
 				if ( uncommitedChangesWindow != null ) {
@@ -61,21 +64,26 @@ namespace UniTEAM {
 				}
 
 				nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
-				branch = repo.Head;
 
 				Repaint();
 			}
-			catch {}
+			catch ( System.Exception e) {
+				Debug.Log( e );
+			}
 		}
 
 		private void OnInspectorUpdate() {
+			if ( !isConsoleReady ) {
+				return;
+			}
+
 			if ( Time.realtimeSinceStartup >= nextRefetch ) {
 				fetch();
 			}
 		}
 
 		void OnGUI() {
-			if ( !isFetchComplete ) {
+			if ( !isConsoleReady ) {
 				return;
 			}
 
@@ -93,7 +101,7 @@ namespace UniTEAM {
 				GUILayout.BeginHorizontal();
 				GUILayout.Button( "Overview" );
 
-				if ( GUILayout.Button( "Force Re-fetch [refresh]" ) ) {
+				if ( GUILayout.Button( "Force Re-fetch (refresh): " ) ) {
 					fetch();
 				}
 

@@ -1,13 +1,4 @@
-using System;
-using UnityEngine;
-using UnityEditor;
 using LibGit2Sharp;
-using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using UniTEAM;
 
 namespace UniTEAM {
 	public class CommitItem {
