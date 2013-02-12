@@ -6,14 +6,14 @@ namespace UniTEAM {
 
 		public static void RemoteFetch( Remote remote, Credentials creds, Console console ) {
 			try {
-				UnityThreadHelper.CreateThread( () =>
-				                                remote.Fetch( TagFetchMode.Auto,
-				                                              OnProgress,
-				                                              OnCompletion,
-				                                              OnUpdateTips,
-				                                              OnTransferProgress,
-				                                              credentials: creds
-					                                ) );
+				//UnityThreadHelper.CreateThread( () =>
+				remote.Fetch( TagFetchMode.Auto,
+				              OnProgress,
+				              OnCompletion,
+				              OnUpdateTips,
+				              OnTransferProgress,
+				              credentials: creds
+					); //);
 			} catch ( System.Exception e ) {
 				Debug.Log( e );
 			}
@@ -24,8 +24,7 @@ namespace UniTEAM {
 		}
 
 		public static int OnUpdateTips( string referenceName, ObjectId oldId, ObjectId newId ) {
-			UnityThreadHelper.Dispatcher.Dispatch( () => Debug.LogWarning( "FetchHelper - OnUpdateTips => " + referenceName + " / " + oldId + " / " + newId ) );
-			
+			Debug.LogWarning( "FetchHelper - OnUpdateTips => " + referenceName + " / " + oldId + " / " + newId );
 			return 0;
 		}
 
