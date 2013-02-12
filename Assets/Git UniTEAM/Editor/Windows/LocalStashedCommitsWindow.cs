@@ -24,13 +24,13 @@ namespace UniTEAM {
 				console.fetch();
 			}
 
-			if ( console.commitsInStash.Any() ) {
+			//if ( console.commitsInStash.Any() ) {
 
-				foreach ( Commit commit in console.commitsInStash ) {
+				foreach ( Commit commit in console.repo.Commits.QueryBy( new Filter { Since = console.branch.Tip, Until = console.branch.TrackedBranch } ) ) {
 					Console.getUpdateItem( commit, commit.Parents.First(), rect );
 				}
 
-			}
+			//}
 
 			GUI.enabled = true;
 
