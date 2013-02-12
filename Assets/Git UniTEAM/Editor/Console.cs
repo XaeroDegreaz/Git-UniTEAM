@@ -55,8 +55,6 @@ namespace UniTEAM {
 			//commitsInStash = repo.Commits.QueryBy( new Filter { Since = branch.Tip, Until = branch.TrackedBranch } );
 
 			try {
-				//isFetchComplete = false;
-
 				FetchHelper.RemoteFetch( remote, credentials, this );
 
 				branch = repo.Head;
