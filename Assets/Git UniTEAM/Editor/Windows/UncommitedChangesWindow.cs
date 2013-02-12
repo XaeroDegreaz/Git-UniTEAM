@@ -25,7 +25,7 @@ namespace UniTEAM {
 
 		public TreeChanges changes;
 		public static Rect rect;
-		private static Vector2 scroll;
+		private Vector2 scroll;
 		private string commitText = string.Empty;
 
 		public UncommitedChangesWindow(  ) {

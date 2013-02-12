@@ -27,6 +27,7 @@ namespace UniTEAM {
 		public Remote remote;
 		public Branch branch;
 		public Credentials credentials;
+		public bool isFetchComplete = false;
 
 		[MenuItem( "Team/Git UniTEAM Console" )]
 		static void init() {
@@ -46,10 +47,14 @@ namespace UniTEAM {
 			OverviewWindow.selectedRemote = remote.Name;
 		}
 
+		void OnDisable() {
+			isFetchComplete = false;
+		}
+
 		public void fetch() {
 			try {
-				FetchHelper.isFetchComplete = false;
-				FetchHelper.RemoteFetch( remote, credentials );
+				isFetchComplete = false;
+				FetchHelper.RemoteFetch( remote, credentials, this );
 
 				if ( uncommitedChangesWindow != null ) {
 					uncommitedChangesWindow.reset( repo.Diff.Compare() );
@@ -63,14 +68,14 @@ namespace UniTEAM {
 			catch {}
 		}
 
-		private void Update() {
+		private void OnInspectorUpdate() {
 			if ( Time.realtimeSinceStartup >= nextRefetch ) {
 				fetch();
 			}
 		}
 
 		void OnGUI() {
-			if ( !FetchHelper.isFetchComplete ) {
+			if ( !isFetchComplete ) {
 				return;
 			}
 

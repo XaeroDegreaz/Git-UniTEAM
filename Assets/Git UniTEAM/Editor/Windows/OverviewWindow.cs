@@ -23,6 +23,13 @@ namespace UniTEAM {
 			//GUILayout.EndHorizontal();
 
 			GUILayout.Label( "Current branch: " + console.branch.Name );
+
+			GUILayout.Label( "SSL Credentials" );
+			GUILayout.Label( "Username" );
+			console.credentials.Username = GUILayout.TextField( console.credentials.Username );
+			GUILayout.Label( "Password" );
+			console.credentials.Password = GUILayout.TextField( console.credentials.Password );
+
 		}
 
 		static void getRemoteList(Console console) {

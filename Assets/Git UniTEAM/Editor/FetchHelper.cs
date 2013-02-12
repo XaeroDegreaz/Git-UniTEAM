@@ -12,9 +12,7 @@ using UniTEAM;
 namespace UniTEAM {
 	public class FetchHelper {
 
-		public static bool isFetchComplete = false;
-
-		public static void RemoteFetch( Remote remote, Credentials creds ) {
+		public static void RemoteFetch( Remote remote, Credentials creds, Console console ) {
 			try {
 				//UnityThreadHelper.CreateThread( () => {
 				remote.Fetch( TagFetchMode.Auto,
@@ -25,7 +23,7 @@ namespace UniTEAM {
 					credentials: creds
 				);
 
-				isFetchComplete = true;
+				console.isFetchComplete = true;
 				//} );
 			} catch ( System.Exception e ) {
 				Debug.Log( e );
@@ -37,10 +35,7 @@ namespace UniTEAM {
 		}
 
 		public static int OnUpdateTips( string referenceName, ObjectId oldId, ObjectId newId ) {
-			isFetchComplete = true;
-
 			Debug.LogWarning( "FetchHelper - OnUpdateTips => " + referenceName + " / " + oldId + " / " + newId );
-
 			return 0;
 		}
 
@@ -50,8 +45,6 @@ namespace UniTEAM {
 		}
 
 		public static void OnProgress( string serverProgressOutput ) {
-			isFetchComplete = false;
-
 			Debug.LogWarning("FetchHelper - OnProgress => "+ serverProgressOutput );
 		}
 	}
