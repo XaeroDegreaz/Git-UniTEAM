@@ -45,15 +45,6 @@ namespace UniTEAM {
 			changes = newChanges;
 			untracked = console.repo.Index.RetrieveStatus().Untracked;
 			treeView = new TreeView();
-
-			//# If anything evaluates true here, this means someone is currently working in the commit window, and
-			//# we don't want to interrupt their changes.
-			if ( checkboxValues.ContainsValue( false ) || foldoutValues.ContainsValue( false ) || commitText.Trim().Length > 0 ) {
-				return;
-			}
-
-			checkboxValues.Clear();
-			foldoutValues.Clear();
 		}
 
 		public void draw(Console console, int i ) {
@@ -103,6 +94,10 @@ namespace UniTEAM {
 				} else {
 					console.repo.Index.Stage( stage );
 					console.repo.Commit( commitText, signature );
+
+					checkboxValues.Clear();
+					foldoutValues.Clear();
+
 					console.fetch();
 				}
 
