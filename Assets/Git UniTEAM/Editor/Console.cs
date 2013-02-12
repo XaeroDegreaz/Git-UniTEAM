@@ -53,7 +53,7 @@ namespace UniTEAM {
 		public void fetch() {
 			//commitsOnServer = repo.Commits.QueryBy( new Filter { Since = branch.TrackedBranch, Until = branch.Tip } );
 			//commitsInStash = repo.Commits.QueryBy( new Filter { Since = branch.Tip, Until = branch.TrackedBranch } );
-
+			Debug.Log( "Fetch called..." );
 			try {
 				FetchHelper.RemoteFetch( remote, credentials, this );
 
