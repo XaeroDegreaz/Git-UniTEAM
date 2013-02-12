@@ -24,7 +24,8 @@ namespace UniTEAM {
 		}
 
 		public static int OnUpdateTips( string referenceName, ObjectId oldId, ObjectId newId ) {
-			Debug.LogWarning( "FetchHelper - OnUpdateTips => " + referenceName + " / " + oldId + " / " + newId );
+			UnityThreadHelper.Dispatcher.Dispatch( () => Debug.LogWarning( "FetchHelper - OnUpdateTips => " + referenceName + " / " + oldId + " / " + newId ) );
+			
 			return 0;
 		}
 
