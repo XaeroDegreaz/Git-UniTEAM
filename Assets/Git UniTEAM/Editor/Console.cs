@@ -99,6 +99,12 @@ namespace UniTEAM {
 
 				GUI.enabled = !LocalStashedCommitsWindow.isPushing;
 				if ( GUILayout.Button( ( !LocalStashedCommitsWindow.isPushing ) ? "Push Stashed Commits" : "Pushing, please wait..." ) ) {
+
+					//# Don't send blank pushes....
+					if ( repo.Head.AheadBy == 0 ) {
+						return;
+					}
+
 					UnityThreadHelper.CreateThread( () => {
 						LocalStashedCommitsWindow.isPushing = true;
 						repo.Network.Push( remote, "refs/heads/master:refs/heads/master", OnPushStatusError, credentials );
