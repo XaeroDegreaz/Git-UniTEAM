@@ -59,6 +59,8 @@ namespace UniTEAM {
 
 				FetchHelper.RemoteFetch( remote, credentials, this );
 
+				branch = repo.Head;
+
 				if ( uncommitedChangesWindow != null ) {
 					uncommitedChangesWindow.reset( repo.Diff.Compare(), this );
 				}
