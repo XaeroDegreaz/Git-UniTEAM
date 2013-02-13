@@ -165,6 +165,7 @@ namespace UniTEAM {
 						case "history":
 							GUILayout.Window( 4, ChangesetViewWindow.rect, windowDelegate, "Changeset Viewer" );
 							GUILayout.Window( 5, HistoryWindow.rect, windowDelegate, "Repository History" );
+							GUILayout.Window( 6, HistoryWindow.commitMessageRect, windowDelegate, "Commit Messages" );
 							break;
 					}
 
@@ -195,6 +196,9 @@ namespace UniTEAM {
 					break;
 				case 5:
 					HistoryWindow.draw( this, id );
+					break;
+				case 6:
+					HistoryWindow.commitMessageWindow( id );
 					break;
 			}
 		}
@@ -236,6 +240,14 @@ namespace UniTEAM {
 
 			HistoryWindow.rect = UncommitedChangesWindow.rect;
 			HistoryWindow.rect.height = ( windowHeight / 1.25f ) - ( windowPadding * 2 );
+
+			HistoryWindow.commitMessageRect = new Rect(
+				HistoryWindow.rect.x,
+				HistoryWindow.rect.y + HistoryWindow.rect.height + ( Console.windowPadding * 2 ),
+				HistoryWindow.rect.width,
+				( HistoryWindow.rect.height / 4f )
+			);
+								  
 
 			UpdatesOnServerWindow.rect = new Rect(
 				windowPadding + windowWidth + ( windowPadding * 2 ),
