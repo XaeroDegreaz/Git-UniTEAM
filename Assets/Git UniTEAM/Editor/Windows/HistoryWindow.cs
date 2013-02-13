@@ -41,8 +41,11 @@ namespace UniTEAM {
 		}
 
 		private static void commitMessageWindow( int id ) {
+			GUIStyle skin = new GUIStyle(GUI.skin.textArea);
+			skin.normal.background = GUI.skin.label.normal.background;
+
 			commitMessageScroll = GUILayout.BeginScrollView( commitMessageScroll );
-			GUILayout.TextArea(commitMessage, GUI.skin.label);
+			GUILayout.TextArea(commitMessage, skin);
 			GUILayout.EndScrollView();
 		}
 
