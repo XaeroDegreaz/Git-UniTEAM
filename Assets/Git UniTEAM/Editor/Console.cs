@@ -28,6 +28,7 @@ namespace UniTEAM {
 		public IEnumerable<Commit> commitsOnServer = new BindingList<Commit>();
 		public IEnumerable<Commit> commitsInStash = new BindingList<Commit>();
 		private bool isConsoleReady = false;
+		private string windowSet;
 
 		[MenuItem( "Team/Git UniTEAM Console" )]
 		static void init() {
@@ -42,6 +43,8 @@ namespace UniTEAM {
 			repo = new Repository( Directory.GetCurrentDirectory() );
 			branch = repo.Head;
 			remote = repo.Network.Remotes[ "origin" ];
+
+			windowSet = "overview";
 
 			isConsoleReady = true;
 		}
@@ -78,7 +81,9 @@ namespace UniTEAM {
 			}
 
 			if ( Time.realtimeSinceStartup >= nextRefetch ) {
-				fetch();
+				if ( windowSet == "commits" ) {
+					fetch();
+				}
 			}
 		}
 
@@ -98,8 +103,19 @@ namespace UniTEAM {
 
 				fixWindowRects();
 
-				GUILayout.BeginHorizontal();
-				GUILayout.Button( "Overview" );
+				GUILayout.BeginHorizontal(GUILayout.Width( Screen.width / 4 ));
+				
+				if ( GUILayout.Button( "Overview" ) ) {
+					windowSet = "overview";
+				}
+
+				if ( GUILayout.Button( "Commit Manager" ) ) {
+					windowSet = "commits";
+				}
+
+				if ( GUILayout.Button( "Repo History" ) ) {
+					
+				}
 
 				if ( GUILayout.Button( "Force Re-fetch (refresh): " ) ) {
 					fetch();
@@ -128,12 +144,21 @@ namespace UniTEAM {
 					GUILayout.Window( 4, currentErrorLocation, errorWindow, "Error:" );
 				}
 				else {
-					GUILayout.Window( 0, OverviewWindow.rect, windowDelegate, "Overview" );
-					GUILayout.Window( 1, UncommitedChangesWindow.rect, windowDelegate, "Uncommited Changes" );
-					GUILayout.Window( 2, UpdatesOnServerWindow.rect, windowDelegate,
-					                  "Updates on Server [Commits Behind: " + repo.Head.BehindBy + "]" );
-					GUILayout.Window( 3, LocalStashedCommitsWindow.rect, windowDelegate,
-					                  "Local Commit Stash [Commits Ahead: " + repo.Head.AheadBy + "]" );
+
+					switch ( windowSet ) {
+						case "overview":
+							GUILayout.Window( 0, OverviewWindow.rect, windowDelegate, "Overview" );
+							GUILayout.Window( 1, UncommitedChangesWindow.rect, windowDelegate, "Uncommited Changes" );
+							break;
+						case "commits":
+							GUILayout.Window( 4, ChangesetViewWindow.rect, windowDelegate, "Changeset Viewer" );
+							GUILayout.Window( 2, UpdatesOnServerWindow.rect, windowDelegate, "Updates on Server [Commits Behind: " + repo.Head.BehindBy + "]" );
+							GUILayout.Window( 3, LocalStashedCommitsWindow.rect, windowDelegate, "Local Commit Stash [Commits Ahead: " + repo.Head.AheadBy + "]" );
+							break;
+						case "history":
+							break;
+					}
+
 				}
 
 				EndWindows();
@@ -156,6 +181,9 @@ namespace UniTEAM {
 				case 3:
 					LocalStashedCommitsWindow.draw( this, id );
 					break;
+				case 4:
+					ChangesetViewWindow.draw( this, id );
+					break;
 			}
 		}
 
@@ -174,30 +202,38 @@ namespace UniTEAM {
 		}
 
 		private void fixWindowRects() {
-			float windowWidth = ( position.width / 2 ) - windowPadding;
-			float windowHeight = ( position.height / 2.25f ) - windowPadding;
+			float positionFromTop = 30f;
+			float windowWidth = ( position.width / 2f ) - ( windowPadding * 2 );
+			float windowHeight = ( position.height ) - positionFromTop - ( windowPadding * 2 );
 
-			OverviewWindow.rect = new Rect( windowPadding, 30, windowWidth, windowHeight );
-
-			UncommitedChangesWindow.rect = new Rect(
+			OverviewWindow.rect = new Rect( 
 				windowPadding,
-				OverviewWindow.rect.y + OverviewWindow.rect.height + ( windowPadding * 2 ),
+				positionFromTop,
 				windowWidth,
-				windowHeight - windowPadding
-			);
-
-			UpdatesOnServerWindow.rect = new Rect(
-				OverviewWindow.rect.x + OverviewWindow.rect.width + windowPadding,
-				OverviewWindow.rect.y,
-				windowWidth - windowPadding,
 				windowHeight
 			);
 
+			UncommitedChangesWindow.rect = new Rect(
+				windowPadding + windowWidth + ( windowPadding * 2 ),
+				positionFromTop,
+				windowWidth,
+				windowHeight
+			);
+
+			ChangesetViewWindow.rect = OverviewWindow.rect;
+
+			UpdatesOnServerWindow.rect = new Rect(
+				windowPadding + windowWidth + ( windowPadding * 2 ),
+				positionFromTop,
+				windowWidth,
+				windowHeight / 2 - ( windowPadding * 2 )
+			);
+
 			LocalStashedCommitsWindow.rect = new Rect(
-				UpdatesOnServerWindow.rect.x,
-				UpdatesOnServerWindow.rect.y + UpdatesOnServerWindow.rect.height + ( windowPadding * 2 ),
-				windowWidth - windowPadding,
-				windowHeight - windowPadding
+				windowPadding + windowWidth + ( windowPadding * 2 ),
+				positionFromTop + ( windowHeight / 2 ) + ( windowPadding * 2 ),
+				windowWidth,
+				windowHeight / 2 - ( windowPadding * 2 )
 			);
 		}
 
