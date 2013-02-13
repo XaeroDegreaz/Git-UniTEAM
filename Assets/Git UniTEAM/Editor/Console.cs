@@ -11,7 +11,9 @@ namespace UniTEAM {
 		private string lastCommitMessage;
 		private const float windowPadding = 5f;
 		private float nextRefetch = -1;
+		private float nextUncommittedChangesCompare = -1;
 		private const float refetchFrequency = 15f;
+		private const float compareFrequency = 1f;
 
 		public Vector2 overviewWindowScroll;
 		public Vector2 updatesOnServerWindowScroll;
@@ -19,6 +21,7 @@ namespace UniTEAM {
 		public Vector2 localStashedCommitsWindowScroll;
 
 		public UncommitedChangesWindow uncommitedChangesWindow;
+		public ChangesetViewWindow changesetViewWindow;
 		public Repository repo;
 		public Remote remote;
 		public Branch branch;
@@ -62,10 +65,6 @@ namespace UniTEAM {
 
 				branch = repo.Head;
 
-				if ( uncommitedChangesWindow != null ) {
-					uncommitedChangesWindow.reset( repo.Diff.Compare(), this );
-				}
-
 				nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
 
 				Repaint();
@@ -85,6 +84,13 @@ namespace UniTEAM {
 					fetch();
 				}
 			}
+
+			if ( Time.realtimeSinceStartup >= nextUncommittedChangesCompare ) {
+				if ( uncommitedChangesWindow != null ) {
+					uncommitedChangesWindow.reset( repo.Diff.Compare(), this );
+					nextUncommittedChangesCompare = Time.realtimeSinceStartup + compareFrequency;
+				}
+			}
 		}
 
 		void OnGUI() {
@@ -97,6 +103,7 @@ namespace UniTEAM {
 				//# reducing the amount of function calls during ongui
 				if ( uncommitedChangesWindow == null ) {
 					uncommitedChangesWindow = new UncommitedChangesWindow();
+					changesetViewWindow = new ChangesetViewWindow();
 
 					uncommitedChangesWindow.reset( repo.Diff.Compare(), this );
 				}
@@ -182,7 +189,7 @@ namespace UniTEAM {
 					LocalStashedCommitsWindow.draw( this, id );
 					break;
 				case 4:
-					ChangesetViewWindow.draw( this, id );
+					changesetViewWindow.draw( this, id );
 					break;
 			}
 		}
@@ -237,7 +244,7 @@ namespace UniTEAM {
 			);
 		}
 
-		public static void getUpdateItem(Commit commit, Commit lastCommit, Rect windowRect ) {
+		public void getUpdateItem(Commit commit, Commit lastCommit, Rect windowRect ) {
 
 			CommitItem item = new CommitItem( commit );
 
@@ -248,7 +255,12 @@ namespace UniTEAM {
 			Rect r = EditorGUILayout.BeginHorizontal( "Button", GUILayout.Width( horizontalWidth ) );
 
 			if ( GUI.Button( r, GUIContent.none ) ) {
-				Debug.Log( "Commit pressed" );
+				try {
+					changesetViewWindow.reset( repo.Diff.Compare( lastCommit.Tree, commit.Tree ), this );
+				}
+				catch(System.Exception e) {
+					changesetViewWindow.reset( e );
+				}
 			}
 
 			GUILayout.Label( item.commitMessage.Substring( 0, Mathf.Min( item.commitMessage.Length, 100 ) ), GUILayout.Width( halfWidth ) );

@@ -14,7 +14,7 @@ namespace UniTEAM {
 
 			//if ( console.commitsOnServer.Any() ) {
 				foreach ( Commit commit in console.repo.Commits.QueryBy( new Filter { Since = console.branch.TrackedBranch, Until = console.branch.Tip } ) ) {
-					Console.getUpdateItem( commit, commit.Parents.First(), rect );
+					console.getUpdateItem( commit, commit.Parents.First(), rect );
 				}
 			//}
 

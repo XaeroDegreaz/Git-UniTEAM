@@ -9,7 +9,7 @@ namespace UniTEAM {
 
 		public static void init( string diffPatch ) {
 			patch = diffPatch;
-			GetWindow<Diff>( "UniTEAM -- Diff", typeof(Console) );
+			GetWindow<Diff>( "UniTEAM -- DiffffffFFFFFFFFFFFFFFFFFFFF", typeof(Console) );
 		}
 
 
