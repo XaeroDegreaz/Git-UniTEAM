@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEditor;
 using System.Linq;
 using LibGit2Sharp;
 
@@ -12,12 +13,19 @@ namespace UniTEAM {
 		private static string commitMessage = string.Empty;
 		public static Rect rect;
 		public static Rect commitMessageRect;
+		private static int commitsToShow;
 
 		public static void draw( Console console, int id ) {
+			GUILayout.BeginHorizontal();
+			GUILayout.Label( "# Commits (0 for all)", GUILayout.Width( 150 ) );
+			commitsToShow = EditorGUILayout.IntField( commitsToShow, GUILayout.Width( 50 ) );
+			GUILayout.EndHorizontal();
+
 			scroll = GUILayout.BeginScrollView( scroll );
 
 			//if ( console.commitsOnServer.Any() ) {
-			foreach ( Commit commit in console.repo.Commits ) {
+
+			foreach ( Commit commit in (commitsToShow > 0) ? console.repo.Commits.Take( commitsToShow ) : console.repo.Commits ) {
 				try {
 					console.getUpdateItem( commit, commit.Parents.First(), rect, onCommitSelected );
 				}
