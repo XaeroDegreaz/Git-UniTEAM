@@ -9,7 +9,7 @@ namespace UniTEAM {
 	public class Console : EditorWindow {
 
 		private string lastCommitMessage;
-		private const float windowPadding = 5f;
+		public const float windowPadding = 5f;
 		private float nextRefetch = -1;
 		private float nextUncommittedChangesCompare = -1;
 		private const float refetchFrequency = 15f;
@@ -121,7 +121,7 @@ namespace UniTEAM {
 				}
 
 				if ( GUILayout.Button( "Repo History" ) ) {
-					
+					windowSet = "history";
 				}
 
 				if ( GUILayout.Button( "Force Re-fetch (refresh): " ) ) {
@@ -163,6 +163,8 @@ namespace UniTEAM {
 							GUILayout.Window( 3, LocalStashedCommitsWindow.rect, windowDelegate, "Local Commit Stash [Commits Ahead: " + repo.Head.AheadBy + "]" );
 							break;
 						case "history":
+							GUILayout.Window( 4, ChangesetViewWindow.rect, windowDelegate, "Changeset Viewer" );
+							GUILayout.Window( 5, HistoryWindow.rect, windowDelegate, "Repository History" );
 							break;
 					}
 
@@ -190,6 +192,9 @@ namespace UniTEAM {
 					break;
 				case 4:
 					changesetViewWindow.draw( this, id );
+					break;
+				case 5:
+					HistoryWindow.draw( this, id );
 					break;
 			}
 		}
@@ -229,6 +234,9 @@ namespace UniTEAM {
 
 			ChangesetViewWindow.rect = OverviewWindow.rect;
 
+			HistoryWindow.rect = UncommitedChangesWindow.rect;
+			HistoryWindow.rect.height = ( windowHeight / 1.25f ) - ( windowPadding * 2 );
+
 			UpdatesOnServerWindow.rect = new Rect(
 				windowPadding + windowWidth + ( windowPadding * 2 ),
 				positionFromTop,
@@ -244,7 +252,9 @@ namespace UniTEAM {
 			);
 		}
 
-		public void getUpdateItem(Commit commit, Commit lastCommit, Rect windowRect ) {
+		public delegate void onCommitSelected( Commit commit );
+
+		public void getUpdateItem(Commit commit, Commit lastCommit, Rect windowRect, onCommitSelected onCommitSelected ) {
 
 			CommitItem item = new CommitItem( commit );
 
@@ -258,8 +268,11 @@ namespace UniTEAM {
 				try {
 					changesetViewWindow.reset( repo.Diff.Compare( lastCommit.Tree, commit.Tree ), this );
 				}
-				catch(System.Exception e) {
+				catch ( System.Exception e ) {
 					changesetViewWindow.reset( e );
+				}
+				finally {
+					onCommitSelected(commit);
 				}
 			}
 

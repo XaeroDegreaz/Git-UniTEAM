@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using LibGit2Sharp;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace UniTEAM {
 			//if ( console.commitsInStash.Any() ) {
 
 				foreach ( Commit commit in console.repo.Commits.QueryBy( new Filter { Since = console.branch.Tip, Until = console.branch.TrackedBranch } ) ) {
-					console.getUpdateItem( commit, commit.Parents.First(), rect );
+					console.getUpdateItem( commit, commit.Parents.First(), rect, onCommitSelected );
 				}
 
 			//}
@@ -35,6 +36,10 @@ namespace UniTEAM {
 			GUI.enabled = true;
 
 			GUILayout.EndScrollView();
+		}
+
+		private static void onCommitSelected( Commit commit ) {
+			
 		}
 	}
 

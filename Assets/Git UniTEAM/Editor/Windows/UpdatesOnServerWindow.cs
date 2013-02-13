@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Linq;
 using LibGit2Sharp;
@@ -14,11 +15,15 @@ namespace UniTEAM {
 
 			//if ( console.commitsOnServer.Any() ) {
 				foreach ( Commit commit in console.repo.Commits.QueryBy( new Filter { Since = console.branch.TrackedBranch, Until = console.branch.Tip } ) ) {
-					console.getUpdateItem( commit, commit.Parents.First(), rect );
+					console.getUpdateItem( commit, commit.Parents.First(), rect, onCommitSelected );
 				}
 			//}
 
 			GUILayout.EndScrollView();
+		}
+
+		private static void onCommitSelected( Commit commit ) {
+			
 		}
 	}
 }
