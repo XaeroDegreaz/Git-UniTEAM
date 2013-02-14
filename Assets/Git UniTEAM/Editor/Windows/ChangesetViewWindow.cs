@@ -96,7 +96,7 @@ namespace UniTEAM {
 					EditorGUILayout.BeginHorizontal( noStyle );
 					GUILayout.Space( 15f );
 
-					checkboxValues[ treeViewItem.path ] = GUILayout.Toggle( checkboxValues[ treeViewItem.path ], treeViewItem.name );
+					GUILayout.Label( treeViewItem.name );
 
 					GUILayout.Label( "[" + treeViewItem.status + "]", statusStyle );
 

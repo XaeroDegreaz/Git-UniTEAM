@@ -31,7 +31,7 @@ namespace UniTEAM {
 		public IEnumerable<Commit> commitsOnServer = new BindingList<Commit>();
 		public IEnumerable<Commit> commitsInStash = new BindingList<Commit>();
 		private bool isConsoleReady = false;
-		private string windowSet;
+		public string windowSet;
 
 		[MenuItem( "Team/Git UniTEAM Console" )]
 		static void init() {
