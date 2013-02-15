@@ -13,16 +13,7 @@ obj
 /git-uniteam-csharp.sln
 /git-uniteam-csharp.v11.suo
 /git-uniteam.sln
-Binary Builder/git-uniteam-builder.v11.suo
+Binary Builder/bin/Debug
+Binary Builder
 git-uniteam-builder.v11.suo
 git-uniteam.v11.suo
-Binary Builder/bin/Debug/git-uniteam.dll
-Binary Builder/bin/Debug/git-uniteam.pdb
-Binary Builder/bin/Debug/ICSharpCode.NRefactory.dll
-Binary Builder/bin/Debug/LibGit2Sharp.dll
-Binary Builder/bin/Debug/LibGit2Sharp.xml
-Binary Builder/bin/Debug/Mono.Cecil.dll
-Binary Builder/bin/Debug/nunit.framework.dll
-Binary Builder/bin/Debug/UnityEditor.dll
-Binary Builder/bin/Debug/UnityEngine.dll
-Binary Builder/Properties/AssemblyInfo.cs

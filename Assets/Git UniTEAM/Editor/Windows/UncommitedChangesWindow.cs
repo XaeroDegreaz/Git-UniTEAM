@@ -120,6 +120,13 @@ namespace UniTEAM {
 
 				foldoutValues[ treeViewNode.Value.name ] = EditorGUILayout.Foldout( foldoutValues[ treeViewNode.Value.name ], treeViewNode.Value.name );
 
+				if ( treeViewNode.Value.items.All( delegate( TreeViewItem item ) {return item.status.Equals( "Untracked" );} ) ) {
+					if ( GUILayout.Button( "Ignore", GUILayout.Width( 50 ) ) ) {
+						console.repo.Ignore.AddPermanentRules( new string[] { treeViewNode.Value.name } );
+						console.Repaint();
+					}
+				}
+
 				EditorGUILayout.EndHorizontal();
 
 				//# If the foldup is folded, then just continue to the next iteration and don't show children
