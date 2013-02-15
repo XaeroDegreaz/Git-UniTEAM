@@ -5,7 +5,6 @@ using System.Linq;
 
 namespace UniTEAM {
 	public class LocalStashedCommitsWindow {
-
 		public static Rect rect;
 		private static Vector2 scroll = Vector2.zero;
 		public static bool isPushing = false;
@@ -18,29 +17,23 @@ namespace UniTEAM {
 
 			if ( isPushing ) {
 				doesRequireFetch = true;
-			}
-			else if ( !isPushing && doesRequireFetch ) {
+			} else if ( !isPushing && doesRequireFetch ) {
 				//# Trigger a fetch
 				doesRequireFetch = false;
 				console.fetch();
 			}
 
-			//if ( console.commitsInStash.Any() ) {
-
-				foreach ( Commit commit in console.repo.Commits.QueryBy( new Filter { Since = console.branch.Tip, Until = console.branch.TrackedBranch } ) ) {
-					console.getUpdateItem( commit, commit.Parents.First(), rect, onCommitSelected );
-				}
-
-			//}
+			foreach ( Commit commit in console.repo.Commits.QueryBy( new Filter {
+				Since = console.branch.Tip, Until = console.branch.TrackedBranch
+			} ) ) {
+				console.getUpdateItem( commit, commit.Parents.First(), rect, onCommitSelected );
+			}
 
 			GUI.enabled = true;
 
 			GUILayout.EndScrollView();
 		}
 
-		private static void onCommitSelected( Commit commit ) {
-			
-		}
+		private static void onCommitSelected( Commit commit ) {}
 	}
-
 }

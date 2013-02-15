@@ -7,7 +7,7 @@ namespace UniTEAM {
 		public static bool isSelecting;
 		public static Rect rect;
 
-		public static void draw(Console console, int id ) {
+		public static void draw( Console console, int id ) {
 			GUILayout.Label( "Repository: " + console.repo.Info.WorkingDirectory );
 			GUILayout.Label( "Current branch: " + console.branch.Name );
 
@@ -18,14 +18,13 @@ namespace UniTEAM {
 			console.configManager.username = GUILayout.TextField( console.configManager.username );
 			GUILayout.Label( "Password (if required)" );
 			console.configManager.password = GUILayout.PasswordField( console.configManager.password, "*".ToCharArray()[ 0 ] );
-			
-			if ( GUILayout.Button( "Save" ) ) {
-				console.configManager.saveConfig(console);
-			}
 
+			if ( GUILayout.Button( "Save" ) ) {
+				console.configManager.saveConfig( console );
+			}
 		}
 
-		static void getRemoteList(Console console) {
+		private static void getRemoteList( Console console ) {
 			GUILayout.BeginVertical( "Box" );
 			if ( GUILayout.Button( selectedRemote ) ) {
 				isSelecting = !isSelecting;
@@ -34,7 +33,7 @@ namespace UniTEAM {
 			if ( isSelecting ) {
 				int i = 0;
 				foreach ( Remote b in console.repo.Network.Remotes ) {
-					if ( GUI.Button( new Rect(0, 30 + (i*30), 20, 20), b.Name  ) ) {
+					if ( GUI.Button( new Rect( 0, 30 + ( i * 30 ), 20, 20 ), b.Name ) ) {
 						selectedRemote = b.Name;
 						isSelecting = false;
 					}
@@ -44,6 +43,5 @@ namespace UniTEAM {
 			}
 			GUILayout.EndHorizontal();
 		}
-
 	}
 }

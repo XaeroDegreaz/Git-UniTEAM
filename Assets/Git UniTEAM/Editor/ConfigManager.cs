@@ -1,24 +1,19 @@
 using LibGit2Sharp;
 using UnityEngine;
-using UnityEditor;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 
 namespace UniTEAM {
-
 	public class ConfigManager {
-
 		public string username = string.Empty;
 		public string password = string.Empty;
 		private string dataPath;
 
-		public ConfigManager(Console console) {
+		public ConfigManager( Console console ) {
 			dataPath = Application.dataPath;
-			loadConfig(console);
+			loadConfig( console );
 		}
 
-		private void loadConfig(Console console) {
+		private void loadConfig( Console console ) {
 			try {
 				StreamReader reader = new StreamReader( dataPath + "\\Plugins\\git-uniteam-config.txt" );
 				username = reader.ReadLine().Trim();
@@ -28,13 +23,12 @@ namespace UniTEAM {
 				console.credentials = new Credentials();
 				console.credentials.Username = username.Trim();
 				console.credentials.Password = password.Trim();
-			}
-			catch ( System.Exception e ) {
+			} catch ( System.Exception e ) {
 				Debug.Log( e );
 			}
 		}
 
-		public void saveConfig(Console console) {
+		public void saveConfig( Console console ) {
 			FileInfo info = null;
 
 			UnityThreadHelper.CreateThread( () => {
@@ -56,7 +50,6 @@ namespace UniTEAM {
 					console.credentials = new Credentials();
 					console.credentials.Username = username.Trim();
 					console.credentials.Password = password.Trim();
-
 				} catch ( System.Exception e ) {
 					Debug.Log( e );
 				}

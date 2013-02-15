@@ -5,9 +5,7 @@ using System.Linq;
 using LibGit2Sharp;
 
 namespace UniTEAM {
-
 	public class HistoryWindow {
-
 		private static Vector2 scroll;
 		private static Vector2 commitMessageScroll = new Vector2();
 		private static string commitMessage = string.Empty;
@@ -23,27 +21,23 @@ namespace UniTEAM {
 
 			scroll = GUILayout.BeginScrollView( scroll );
 
-			//if ( console.commitsOnServer.Any() ) {
-
-			foreach ( Commit commit in (commitsToShow > 0) ? console.repo.Commits.Take( commitsToShow ) : console.repo.Commits ) {
+			foreach ( Commit commit in ( commitsToShow > 0 ) ? console.repo.Commits.Take( commitsToShow ) : console.repo.Commits ) {
 				try {
 					console.getUpdateItem( commit, commit.Parents.First(), rect, onCommitSelected );
-				}
-				catch {
+				} catch {
 					console.getUpdateItem( commit, commit, rect, onCommitSelected );
 				}
 			}
-			//}
 
 			GUILayout.EndScrollView();
 		}
 
 		public static void commitMessageWindow( int id ) {
-			GUIStyle skin = new GUIStyle(GUI.skin.textArea);
+			GUIStyle skin = new GUIStyle( GUI.skin.textArea );
 			skin.normal.background = GUI.skin.label.normal.background;
 
 			commitMessageScroll = GUILayout.BeginScrollView( commitMessageScroll );
-			GUILayout.TextArea(commitMessage, skin);
+			GUILayout.TextArea( commitMessage, skin );
 			GUILayout.EndScrollView();
 		}
 

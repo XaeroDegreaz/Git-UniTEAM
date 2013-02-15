@@ -3,12 +3,9 @@ using UnityEngine;
 using UnityEditor;
 using LibGit2Sharp;
 using System.Collections.Generic;
-using System.IO;
 
 namespace UniTEAM {
 	public class UncommitedChangesWindow {
-
-		
 		private List<string> pathNodes = new List<string>();
 		private Dictionary<string, bool> checkboxValues = new Dictionary<string, bool>();
 		private Dictionary<string, bool> foldoutValues = new Dictionary<string, bool>();
@@ -21,14 +18,13 @@ namespace UniTEAM {
 		private Texture2D noTexture;
 
 		public TreeChanges changes;
-		public IEnumerable<string> untracked; 
+		public IEnumerable<string> untracked;
 		public static Rect rect;
 		private Vector2 scroll;
 		private string commitText = string.Empty;
 		private TreeView treeView;
 
-		public UncommitedChangesWindow(  ) {
-
+		public UncommitedChangesWindow() {
 			highlightTexture = getGenericTexture( 1, 1, new Color( 71f / 255f, 71f / 255f, 71f / 255f ) );
 			noTexture = getGenericTexture( 1, 1, new Color( 46f / 255f, 46f / 255f, 46f / 255f ) );
 
@@ -42,17 +38,17 @@ namespace UniTEAM {
 			noStyle = new GUIStyle( "Label" );
 			noStyle.normal.background = noTexture;
 
-			buttonStyle = new GUIStyle(GUI.skin.button);
+			buttonStyle = new GUIStyle( GUI.skin.button );
 			//buttonStyle.padding.bottom = 20;
 		}
 
-		public void reset(TreeChanges newChanges, Console console) {
+		public void reset( TreeChanges newChanges, Console console ) {
 			changes = newChanges;
 			untracked = console.repo.Index.RetrieveStatus().Untracked;
 			treeView = new TreeView();
 		}
 
-		public void draw(Console console, int i ) {
+		public void draw( Console console, int i ) {
 			pathNodes.Clear();
 			treeView.nodes.Clear();
 
@@ -68,7 +64,7 @@ namespace UniTEAM {
 				buildTreeView( untrackedFile );
 			}
 
-			drawTreeView(console);
+			drawTreeView( console );
 
 			GUILayout.EndScrollView();
 
@@ -78,7 +74,7 @@ namespace UniTEAM {
 				Signature signature = new Signature( "Jerome Doby", "xaerodegreaz@gmail.com", System.DateTimeOffset.Now );
 
 				//# Stage everything
-				string[] stage = new string[checkboxValues.Count];
+				string[] stage = new string[ checkboxValues.Count ];
 
 				i = 0;
 				foreach ( KeyValuePair<string, bool> pair in checkboxValues ) {
@@ -93,7 +89,7 @@ namespace UniTEAM {
 				if ( stage.Length == 0 ) {
 					Console.currentError = "You cannot commit without staged items.";
 					Console.currentErrorLocation = rect;
-				}else if(commitText.Equals( string.Empty )) {
+				} else if ( commitText.Equals( string.Empty ) ) {
 					Console.currentError = "Please enter a commit message.";
 					Console.currentErrorLocation = rect;
 				} else {
@@ -108,14 +104,11 @@ namespace UniTEAM {
 
 				commitText = string.Empty;
 			}
-			
 		}
 
-		private void drawTreeView(Console console) {
-
+		private void drawTreeView( Console console ) {
 			//# Loop through each node (folder)
 			foreach ( KeyValuePair<string, TreeViewNode> treeViewNode in treeView.nodes ) {
-
 				//# Add a foldup entry if there isn't already one
 				if ( !foldoutValues.ContainsKey( treeViewNode.Value.name ) ) {
 					foldoutValues.Add( treeViewNode.Value.name, true );
@@ -125,9 +118,11 @@ namespace UniTEAM {
 
 				foldoutValues[ treeViewNode.Value.name ] = EditorGUILayout.Foldout( foldoutValues[ treeViewNode.Value.name ], treeViewNode.Value.name );
 
-				if ( treeViewNode.Value.items.All( delegate( TreeViewItem item ) {return item.status.Equals( "Untracked" );} ) ) {
+				if ( treeViewNode.Value.items.All( delegate( TreeViewItem item ) { return item.status.Equals( "Untracked" ); } ) ) {
 					if ( GUILayout.Button( "Ignore", buttonStyle, GUILayout.Width( 50 ) ) ) {
-						console.repo.Ignore.AddPermanentRules( new string[] { treeViewNode.Value.name } );
+						console.repo.Ignore.AddPermanentRules( new string[] {
+							treeViewNode.Value.name
+						} );
 					}
 				}
 
@@ -140,7 +135,6 @@ namespace UniTEAM {
 
 				//# Loop through each actual file in this node
 				foreach ( TreeViewItem treeViewItem in treeViewNode.Value.items ) {
-
 					//# Add checkbox entry if not already there. Untracked files are unchecked by default.
 					if ( !checkboxValues.ContainsKey( treeViewItem.path ) ) {
 						checkboxValues.Add( treeViewItem.path, !treeViewItem.status.Equals( "Untracked" ) );
@@ -160,8 +154,10 @@ namespace UniTEAM {
 
 					if ( treeViewItem.status.Equals( "Untracked" ) ) {
 						if ( GUILayout.Button( "Ignore", GUILayout.Width( 50 ) ) ) {
-							Debug.Log(console.repo.Info.Path);
-							console.repo.Ignore.AddPermanentRules( new string[]{treeViewItem.path});
+							Debug.Log( console.repo.Info.Path );
+							console.repo.Ignore.AddPermanentRules( new string[] {
+								treeViewItem.path
+							} );
 							console.Repaint();
 						}
 					}
@@ -181,10 +177,10 @@ namespace UniTEAM {
 			treeView.tryAdd( node ).tryAdd( item );
 		}
 
-		private void buildTreeView( string change) {
+		private void buildTreeView( string change ) {
 			int index = change.LastIndexOf( "\\" );
 			string folder = ( index >= 0 ) ? change.Substring( 0, index ) : "\\";
-			
+
 			TreeViewNode node = new TreeViewNode( folder.Trim() );
 			TreeViewItem item = new TreeViewItem( change );
 
@@ -210,4 +206,3 @@ namespace UniTEAM {
 		}
 	}
 }
-

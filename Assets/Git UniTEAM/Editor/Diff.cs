@@ -2,20 +2,18 @@ using UnityEngine;
 using UnityEditor;
 
 namespace UniTEAM {
-
 	public class Diff : EditorWindow {
 		private static string patch;
 		private Vector2 rect;
 
 		public static void init( string diffPatch ) {
 			patch = diffPatch;
-			GetWindow<Diff>( "UniTEAM -- DiffffffFFFFFFFFFFFFFFFFFFFF", typeof(Console) );
+			GetWindow<Diff>( "UniTEAM - Diff", typeof( Console ) );
 		}
 
-
 		private void OnGUI() {
+			rect = GUILayout.BeginScrollView( rect );
 			try {
-				rect = GUILayout.BeginScrollView( rect );
 				string[] arr = patch.Split( "\n".ToCharArray() );
 				Texture2D oldBG = GUI.skin.label.normal.background;
 
@@ -30,10 +28,8 @@ namespace UniTEAM {
 
 					GUILayout.Label( s );
 				}
-				GUILayout.EndScrollView();
-			}catch{}
+			} catch {}
+			GUILayout.EndScrollView();
 		}
 	}
-
 }
-

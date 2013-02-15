@@ -7,7 +7,6 @@ using System.IO;
 
 namespace UniTEAM {
 	public class Console : EditorWindow {
-
 		private string lastCommitMessage;
 		public const float windowPadding = 5f;
 		private float nextRefetch = -1;
@@ -36,36 +35,42 @@ namespace UniTEAM {
 		public ConfigManager configManager;
 
 		public enum WindowSet {
-			overview, commits, history, setup
+			overview,
+			commits,
+			history,
+			setup
 		}
 
 		[MenuItem( "Team/Git UniTEAM Console" )]
-		static void init() {
+		private static void init() {
 			EditorWindow.GetWindow( typeof( Console ), false, "UniTEAM" );
 		}
 
-		void OnEnable() {
-			configManager = new ConfigManager(this);
+		private void OnEnable() {
+			configManager = new ConfigManager( this );
 
 			try {
 				repo = new Repository( Directory.GetCurrentDirectory() );
 				branch = repo.Head;
 				remote = repo.Network.Remotes[ "origin" ];
-			}
-			catch ( System.Exception e ) {
-				Debug.Log( "Repo not found: "+e );
+			} catch ( System.Exception e ) {
+				Debug.Log( "Repo not found: " + e );
 				setupWindow = new SetupWindow();
-				windowSet = WindowSet.setup;
+				changeWindow( WindowSet.setup );
 				isConsoleReady = true;
 				return;
 			}
 
-			windowSet = WindowSet.overview;
+			changeWindow( WindowSet.overview );
 			isConsoleReady = true;
 		}
 
-		void OnDisable() {
+		private void OnDisable() {
 			isFetchComplete = false;
+		}
+
+		private void changeWindow( WindowSet windowSet ) {
+			this.windowSet = windowSet;
 		}
 
 		public void fetch() {
@@ -80,8 +85,7 @@ namespace UniTEAM {
 				nextRefetch = Time.realtimeSinceStartup + refetchFrequency;
 
 				Repaint();
-			}
-			catch ( System.Exception e) {
+			} catch ( System.Exception e ) {
 				Debug.Log( e );
 			}
 		}
@@ -100,7 +104,7 @@ namespace UniTEAM {
 					fetch();
 				}
 			}
-			
+
 			if ( Time.realtimeSinceStartup >= nextUncommittedChangesCompare ) {
 				if ( uncommitedChangesWindow != null ) {
 					uncommitedChangesWindow.reset( repo.Diff.Compare(), this );
@@ -109,7 +113,7 @@ namespace UniTEAM {
 			}
 		}
 
-		void OnGUI() {
+		private void OnGUI() {
 			if ( !isConsoleReady ) {
 				return;
 			}
@@ -126,18 +130,18 @@ namespace UniTEAM {
 
 				fixWindowRects();
 
-				GUILayout.BeginHorizontal(GUILayout.Width( Screen.width / 4 ));
-				
+				GUILayout.BeginHorizontal( GUILayout.Width( Screen.width / 4 ) );
+
 				if ( GUILayout.Button( "Overview" ) ) {
-					windowSet = WindowSet.overview;
+					changeWindow( WindowSet.overview );
 				}
 
 				if ( GUILayout.Button( "Commit Manager" ) ) {
-					windowSet = WindowSet.commits;
+					changeWindow( WindowSet.commits );
 				}
 
 				if ( GUILayout.Button( "Repo History" ) ) {
-					windowSet = WindowSet.history;
+					changeWindow( WindowSet.history );
 				}
 
 				if ( GUILayout.Button( "Force Re-fetch (refresh): " ) ) {
@@ -146,7 +150,6 @@ namespace UniTEAM {
 
 				GUI.enabled = !LocalStashedCommitsWindow.isPushing;
 				if ( GUILayout.Button( ( !LocalStashedCommitsWindow.isPushing ) ? "Push Stashed Commits" : "Pushing, please wait..." ) ) {
-
 					//# Don't send blank pushes....
 					if ( repo.Head.AheadBy == 0 ) {
 						return;
@@ -165,9 +168,7 @@ namespace UniTEAM {
 				BeginWindows();
 				if ( !currentError.Equals( string.Empty ) ) {
 					GUILayout.Window( 4, currentErrorLocation, errorWindow, "Error:" );
-				}
-				else {
-
+				} else {
 					switch ( windowSet ) {
 						case WindowSet.overview:
 							GUILayout.Window( 0, OverviewWindow.rect, windowDelegate, "Overview" );
@@ -187,12 +188,10 @@ namespace UniTEAM {
 							GUILayout.Window( 7, SetupWindow.rect, windowDelegate, "Git UniTEAM Initial Setup" );
 							break;
 					}
-
 				}
 
 				EndWindows();
-			}
-			catch {}
+			} catch {}
 		}
 
 		//# Using this to pass the console reference. Trying not to leak stuff with static properties...
@@ -226,7 +225,7 @@ namespace UniTEAM {
 		}
 
 		private void OnPushStatusError( PushStatusError pushStatusErrors ) {
-			Debug.LogError( "Push errors: "+pushStatusErrors );
+			Debug.LogError( "Push errors: " + pushStatusErrors );
 		}
 
 		public static string currentError = string.Empty;
@@ -234,7 +233,7 @@ namespace UniTEAM {
 
 		private static void errorWindow( int i ) {
 			GUILayout.Label( currentError );
-			if ( GUI.Button( new Rect(0,currentErrorLocation.height - 20, currentErrorLocation.width, 20), "Close" ) ) {
+			if ( GUI.Button( new Rect( 0, currentErrorLocation.height - 20, currentErrorLocation.width, 20 ), "Close" ) ) {
 				currentError = string.Empty;
 			}
 		}
@@ -244,19 +243,17 @@ namespace UniTEAM {
 			float windowWidth = ( position.width / 2f ) - ( windowPadding * 2 );
 			float windowHeight = ( position.height ) - positionFromTop - ( windowPadding * 2 );
 
-			OverviewWindow.rect = new Rect( 
+			OverviewWindow.rect = new Rect(
 				windowPadding,
 				positionFromTop,
 				windowWidth,
-				windowHeight
-			);
+				windowHeight );
 
 			UncommitedChangesWindow.rect = new Rect(
 				windowPadding + windowWidth + ( windowPadding * 2 ),
 				positionFromTop,
 				windowWidth,
-				windowHeight
-			);
+				windowHeight );
 
 			ChangesetViewWindow.rect = OverviewWindow.rect;
 
@@ -267,36 +264,30 @@ namespace UniTEAM {
 				HistoryWindow.rect.x,
 				HistoryWindow.rect.y + HistoryWindow.rect.height + ( Console.windowPadding * 2 ),
 				HistoryWindow.rect.width,
-				( HistoryWindow.rect.height / 4f )
-			);
-								  
+				( HistoryWindow.rect.height / 4f ) );
 
 			UpdatesOnServerWindow.rect = new Rect(
 				windowPadding + windowWidth + ( windowPadding * 2 ),
 				positionFromTop,
 				windowWidth,
-				windowHeight / 2 - ( windowPadding * 2 )
-			);
+				windowHeight / 2 - ( windowPadding * 2 ) );
 
 			LocalStashedCommitsWindow.rect = new Rect(
 				windowPadding + windowWidth + ( windowPadding * 2 ),
 				positionFromTop + ( windowHeight / 2 ) + ( windowPadding * 2 ),
 				windowWidth,
-				windowHeight / 2 - ( windowPadding * 2 )
-			);
+				windowHeight / 2 - ( windowPadding * 2 ) );
 
 			SetupWindow.rect = new Rect(
-				(position.width / 2) - (windowWidth / 2),
+				( position.width / 2 ) - ( windowWidth / 2 ),
 				positionFromTop,
 				windowWidth,
-				windowHeight / 2
-			);
+				windowHeight / 2 );
 		}
 
 		public delegate void onCommitSelected( Commit commit );
 
-		public void getUpdateItem(Commit commit, Commit lastCommit, Rect windowRect, onCommitSelected onCommitSelected ) {
-
+		public void getUpdateItem( Commit commit, Commit lastCommit, Rect windowRect, onCommitSelected onCommitSelected ) {
 			CommitItem item = new CommitItem( commit );
 
 			float horizontalWidth = ( windowRect.width ) - ( windowPadding * 2 ) - 25;
@@ -308,12 +299,10 @@ namespace UniTEAM {
 			if ( GUI.Button( r, GUIContent.none ) ) {
 				try {
 					changesetViewWindow.reset( repo.Diff.Compare( lastCommit.Tree, commit.Tree ), this );
-				}
-				catch ( System.Exception e ) {
+				} catch ( System.Exception e ) {
 					changesetViewWindow.reset( e );
-				}
-				finally {
-					onCommitSelected(commit);
+				} finally {
+					onCommitSelected( commit );
 				}
 			}
 

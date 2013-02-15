@@ -4,7 +4,6 @@ using LibGit2Sharp;
 using UnityEngine;
 
 namespace UniTEAM {
-
 	public class TreeView {
 		public SortedDictionary<string, TreeViewNode> nodes = new SortedDictionary<string, TreeViewNode>();
 
@@ -55,5 +54,4 @@ namespace UniTEAM {
 			patchDiff = "New file";
 		}
 	}
-
 }

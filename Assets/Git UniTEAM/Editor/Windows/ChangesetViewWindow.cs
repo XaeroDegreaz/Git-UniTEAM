@@ -6,7 +6,6 @@ using System.Linq;
 
 namespace UniTEAM {
 	public class ChangesetViewWindow {
-
 		public static Rect rect;
 		private static Vector2 scroll = Vector2.zero;
 		private Dictionary<string, bool> checkboxValues = new Dictionary<string, bool>();
@@ -44,7 +43,7 @@ namespace UniTEAM {
 
 		public void reset( System.Exception e ) {
 			GUILayout.Label( "This commit has no parent to compare to, perhaps it's deleted, or is very root?" );
-			GUILayout.Label( "Exception: "+e );
+			GUILayout.Label( "Exception: " + e );
 		}
 
 		public void draw( Console console, int i ) {
@@ -65,10 +64,8 @@ namespace UniTEAM {
 		}
 
 		private void drawTreeView() {
-
 			//# Loop through each node (folder)
 			foreach ( KeyValuePair<string, TreeViewNode> treeViewNode in treeView.nodes ) {
-
 				//# Add a foldup entry if there isn't already one
 				if ( !foldoutValues.ContainsKey( treeViewNode.Value.name ) ) {
 					foldoutValues.Add( treeViewNode.Value.name, true );
@@ -87,7 +84,6 @@ namespace UniTEAM {
 
 				//# Loop through each actual file in this node
 				foreach ( TreeViewItem treeViewItem in treeViewNode.Value.items ) {
-
 					//# Add checkbox entry if not already there. Untracked files are unchecked by default.
 					if ( !checkboxValues.ContainsKey( treeViewItem.path ) ) {
 						checkboxValues.Add( treeViewItem.path, !treeViewItem.status.Equals( "Untracked" ) );
@@ -120,5 +116,4 @@ namespace UniTEAM {
 			treeView.tryAdd( node ).tryAdd( item );
 		}
 	}
-
 }

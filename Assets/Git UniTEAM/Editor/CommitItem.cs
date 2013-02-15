@@ -19,5 +19,4 @@ namespace UniTEAM {
 			dateString = d.Month + "/" + d.Day + "/" + d.Year + " " + hour + ":" + minute + ":" + second;
 		}
 	}
-
 }
