@@ -19,3 +19,5 @@ Assets/Plugins/git-uniteam-config.txt
 Assets/Plugins/git-uniteam-config.txt.meta
 Binary Builder/bin/Debug
 Game Build
+Binary Builder/git-uniteam-unitypackage/Assets/Plugins/LibGit2Sharp.dll
+Binary Builder/git-uniteam-unitypackage/Assets/Plugins/git2.dll
