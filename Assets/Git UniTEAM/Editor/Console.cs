@@ -45,7 +45,7 @@ namespace UniTEAM {
 		}
 
 		void OnEnable() {
-			configManager = new ConfigManager();
+			configManager = new ConfigManager(this);
 
 			try {
 				repo = new Repository( Directory.GetCurrentDirectory() );

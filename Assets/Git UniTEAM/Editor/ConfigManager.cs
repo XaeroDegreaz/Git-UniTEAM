@@ -13,17 +13,21 @@ namespace UniTEAM {
 		public string password = string.Empty;
 		private string dataPath;
 
-		public ConfigManager() {
+		public ConfigManager(Console console) {
 			dataPath = Application.dataPath;
-			loadConfig();
+			loadConfig(console);
 		}
 
-		private void loadConfig() {
+		private void loadConfig(Console console) {
 			try {
 				StreamReader reader = new StreamReader( dataPath + "\\Plugins\\git-uniteam-config.txt" );
 				username = reader.ReadLine().Trim();
 				password = reader.ReadLine().Trim();
 				reader.Close();
+
+				console.credentials = new Credentials();
+				console.credentials.Username = username.Trim();
+				console.credentials.Password = password.Trim();
 			}
 			catch ( System.Exception e ) {
 				Debug.Log( e );
