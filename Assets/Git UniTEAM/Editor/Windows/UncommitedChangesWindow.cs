@@ -63,7 +63,7 @@ namespace UniTEAM {
 				buildTreeView( untrackedFile );
 			}
 
-			drawTreeView();
+			drawTreeView(console);
 
 			GUILayout.EndScrollView();
 
@@ -106,7 +106,7 @@ namespace UniTEAM {
 			
 		}
 
-		private void drawTreeView() {
+		private void drawTreeView(Console console) {
 
 			//# Loop through each node (folder)
 			foreach ( KeyValuePair<string, TreeViewNode> treeViewNode in treeView.nodes ) {
@@ -145,6 +145,14 @@ namespace UniTEAM {
 					//# Button for launching a diff instance.
 					if ( GUILayout.Button( "Diff", GUILayout.Width( 50 ) ) ) {
 						Diff.init( treeViewItem.patchDiff );
+					}
+
+					if ( treeViewItem.status.Equals( "Untracked" ) ) {
+						if ( GUILayout.Button( "Ignore", GUILayout.Width( 50 ) ) ) {
+							Debug.Log(console.repo.Info.Path);
+							console.repo.Ignore.AddPermanentRules( new string[]{treeViewItem.path});
+							console.Repaint();
+						}
 					}
 
 					EditorGUILayout.EndHorizontal();
