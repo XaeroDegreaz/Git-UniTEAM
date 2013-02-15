@@ -22,6 +22,7 @@ namespace UniTEAM {
 
 		public UncommitedChangesWindow uncommitedChangesWindow;
 		public ChangesetViewWindow changesetViewWindow;
+		public SetupWindow setupWindow;
 		public Repository repo;
 		public Remote remote;
 		public Branch branch;
@@ -31,7 +32,12 @@ namespace UniTEAM {
 		public IEnumerable<Commit> commitsOnServer = new BindingList<Commit>();
 		public IEnumerable<Commit> commitsInStash = new BindingList<Commit>();
 		private bool isConsoleReady = false;
-		public string windowSet;
+		public WindowSet windowSet;
+		public ConfigManager configManager;
+
+		public enum WindowSet {
+			overview, commits, history, setup
+		}
 
 		[MenuItem( "Team/Git UniTEAM Console" )]
 		static void init() {
@@ -39,16 +45,22 @@ namespace UniTEAM {
 		}
 
 		void OnEnable() {
-			credentials = new Credentials();
-			credentials.Username = "xaerodegreaz";
-			credentials.Password = "!!11OBywan";
+			configManager = new ConfigManager();
 
-			repo = new Repository( Directory.GetCurrentDirectory() );
-			branch = repo.Head;
-			remote = repo.Network.Remotes[ "origin" ];
+			try {
+				repo = new Repository( Directory.GetCurrentDirectory() );
+				branch = repo.Head;
+				remote = repo.Network.Remotes[ "origin" ];
+			}
+			catch ( System.Exception e ) {
+				Debug.Log( "Repo not found: "+e );
+				setupWindow = new SetupWindow();
+				windowSet = WindowSet.setup;
+				isConsoleReady = true;
+				return;
+			}
 
-			windowSet = "overview";
-
+			windowSet = WindowSet.overview;
 			isConsoleReady = true;
 		}
 
@@ -79,12 +91,16 @@ namespace UniTEAM {
 				return;
 			}
 
+			if ( repo == null ) {
+				return;
+			}
+
 			if ( Time.realtimeSinceStartup >= nextRefetch ) {
-				if ( windowSet == "commits" ) {
+				if ( windowSet == WindowSet.commits ) {
 					fetch();
 				}
 			}
-
+			
 			if ( Time.realtimeSinceStartup >= nextUncommittedChangesCompare ) {
 				if ( uncommitedChangesWindow != null ) {
 					uncommitedChangesWindow.reset( repo.Diff.Compare(), this );
@@ -113,15 +129,15 @@ namespace UniTEAM {
 				GUILayout.BeginHorizontal(GUILayout.Width( Screen.width / 4 ));
 				
 				if ( GUILayout.Button( "Overview" ) ) {
-					windowSet = "overview";
+					windowSet = WindowSet.overview;
 				}
 
 				if ( GUILayout.Button( "Commit Manager" ) ) {
-					windowSet = "commits";
+					windowSet = WindowSet.commits;
 				}
 
 				if ( GUILayout.Button( "Repo History" ) ) {
-					windowSet = "history";
+					windowSet = WindowSet.history;
 				}
 
 				if ( GUILayout.Button( "Force Re-fetch (refresh): " ) ) {
@@ -153,19 +169,22 @@ namespace UniTEAM {
 				else {
 
 					switch ( windowSet ) {
-						case "overview":
+						case WindowSet.overview:
 							GUILayout.Window( 0, OverviewWindow.rect, windowDelegate, "Overview" );
 							GUILayout.Window( 1, UncommitedChangesWindow.rect, windowDelegate, "Uncommited Changes" );
 							break;
-						case "commits":
+						case WindowSet.commits:
 							GUILayout.Window( 4, ChangesetViewWindow.rect, windowDelegate, "Changeset Viewer" );
 							GUILayout.Window( 2, UpdatesOnServerWindow.rect, windowDelegate, "Updates on Server [Commits Behind: " + repo.Head.BehindBy + "]" );
 							GUILayout.Window( 3, LocalStashedCommitsWindow.rect, windowDelegate, "Local Commit Stash [Commits Ahead: " + repo.Head.AheadBy + "]" );
 							break;
-						case "history":
+						case WindowSet.history:
 							GUILayout.Window( 4, ChangesetViewWindow.rect, windowDelegate, "Changeset Viewer" );
 							GUILayout.Window( 5, HistoryWindow.rect, windowDelegate, "Repository History" );
 							GUILayout.Window( 6, HistoryWindow.commitMessageRect, windowDelegate, "Commit Messages" );
+							break;
+						case WindowSet.setup:
+							GUILayout.Window( 7, SetupWindow.rect, windowDelegate, "Git UniTEAM Initial Setup" );
 							break;
 					}
 
@@ -199,6 +218,9 @@ namespace UniTEAM {
 					break;
 				case 6:
 					HistoryWindow.commitMessageWindow( id );
+					break;
+				case 7:
+					setupWindow.draw( this, id );
 					break;
 			}
 		}
@@ -261,6 +283,13 @@ namespace UniTEAM {
 				positionFromTop + ( windowHeight / 2 ) + ( windowPadding * 2 ),
 				windowWidth,
 				windowHeight / 2 - ( windowPadding * 2 )
+			);
+
+			SetupWindow.rect = new Rect(
+				(position.width / 2) - (windowWidth / 2),
+				positionFromTop,
+				windowWidth,
+				windowHeight / 2
 			);
 		}
 

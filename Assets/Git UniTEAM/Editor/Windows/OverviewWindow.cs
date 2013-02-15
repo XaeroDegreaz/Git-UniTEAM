@@ -9,19 +9,19 @@ namespace UniTEAM {
 
 		public static void draw(Console console, int id ) {
 			GUILayout.Label( "Repository: " + console.repo.Info.WorkingDirectory );
-
-			//GUILayout.BeginHorizontal();
-			//GUILayout.Label( "Remote: " + Console.repo.Remotes[ "origin" ].Url );
-			//getRemoteList();
-			//GUILayout.EndHorizontal();
-
 			GUILayout.Label( "Current branch: " + console.branch.Name );
 
-			GUILayout.Label( "SSL Credentials" );
-			GUILayout.Label( "Username" );
-			console.credentials.Username = GUILayout.TextField( console.credentials.Username );
-			GUILayout.Label( "Password" );
-			console.credentials.Password = GUILayout.TextField( console.credentials.Password );
+			GUILayout.Label( "" );
+
+			GUILayout.Label( "HTTP/HTTPS Credentials" );
+			GUILayout.Label( "Username (if required)" );
+			console.configManager.username = GUILayout.TextField( console.configManager.username );
+			GUILayout.Label( "Password (if required)" );
+			console.configManager.password = GUILayout.PasswordField( console.configManager.password, "*".ToCharArray()[ 0 ] );
+			
+			if ( GUILayout.Button( "Save" ) ) {
+				console.configManager.saveConfig(console);
+			}
 
 		}
 

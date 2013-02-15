@@ -15,6 +15,7 @@ namespace UniTEAM {
 		private GUIStyle statusStyle;
 		private GUIStyle highlightStyle;
 		private GUIStyle noStyle;
+		private GUIStyle buttonStyle;
 
 		private Texture2D highlightTexture;
 		private Texture2D noTexture;
@@ -36,9 +37,13 @@ namespace UniTEAM {
 
 			highlightStyle = new GUIStyle( "Label" );
 			highlightStyle.normal.background = highlightTexture;
+			highlightStyle.padding.bottom = 2;
 
 			noStyle = new GUIStyle( "Label" );
 			noStyle.normal.background = noTexture;
+
+			buttonStyle = new GUIStyle(GUI.skin.button);
+			//buttonStyle.padding.bottom = 20;
 		}
 
 		public void reset(TreeChanges newChanges, Console console) {
@@ -121,9 +126,8 @@ namespace UniTEAM {
 				foldoutValues[ treeViewNode.Value.name ] = EditorGUILayout.Foldout( foldoutValues[ treeViewNode.Value.name ], treeViewNode.Value.name );
 
 				if ( treeViewNode.Value.items.All( delegate( TreeViewItem item ) {return item.status.Equals( "Untracked" );} ) ) {
-					if ( GUILayout.Button( "Ignore", GUILayout.Width( 50 ) ) ) {
+					if ( GUILayout.Button( "Ignore", buttonStyle, GUILayout.Width( 50 ) ) ) {
 						console.repo.Ignore.AddPermanentRules( new string[] { treeViewNode.Value.name } );
-						console.Repaint();
 					}
 				}
 
