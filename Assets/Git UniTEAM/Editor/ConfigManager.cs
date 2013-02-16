@@ -6,6 +6,7 @@ namespace UniTEAM {
 	public class ConfigManager {
 		public string username = string.Empty;
 		public string password = string.Empty;
+		public string explicitPathToRepository;
 		private string dataPath;
 
 		public ConfigManager( Console console ) {
@@ -18,6 +19,14 @@ namespace UniTEAM {
 				StreamReader reader = new StreamReader( dataPath + "\\Plugins\\git-uniteam-config.txt" );
 				username = reader.ReadLine().Trim();
 				password = reader.ReadLine().Trim();
+
+				//# Test for real path defined...
+				string readLine = reader.ReadLine();
+
+				if ( readLine != null ) {
+					explicitPathToRepository = readLine.Trim();
+				}
+
 				reader.Close();
 
 				console.credentials = new Credentials();
@@ -44,6 +53,10 @@ namespace UniTEAM {
 
 					writer.WriteLine( username.Trim() );
 					writer.WriteLine( password.Trim() );
+
+					if ( explicitPathToRepository != null ) {
+						writer.WriteLine( explicitPathToRepository.Trim() );
+					}
 
 					writer.Close();
 

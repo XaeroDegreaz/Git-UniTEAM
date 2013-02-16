@@ -50,7 +50,7 @@ namespace UniTEAM {
 			configManager = new ConfigManager( this );
 
 			try {
-				repo = new Repository( Directory.GetCurrentDirectory() );
+				repo = new Repository( configManager.explicitPathToRepository ?? Directory.GetCurrentDirectory() );
 				branch = repo.Head;
 				remote = repo.Network.Remotes[ "origin" ];
 			} catch ( System.Exception e ) {
