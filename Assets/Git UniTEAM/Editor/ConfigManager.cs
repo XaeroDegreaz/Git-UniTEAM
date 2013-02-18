@@ -8,15 +8,18 @@ namespace UniTEAM {
 		public string password = string.Empty;
 		public string explicitPathToRepository;
 		private string dataPath;
+		private string configPath;
 
 		public ConfigManager( Console console ) {
 			dataPath = Application.dataPath;
+			configPath = dataPath + "\\Git UniTEAM\\Editor\\git-uniteam-config.txt";
+
 			loadConfig( console );
 		}
 
 		private void loadConfig( Console console ) {
 			try {
-				StreamReader reader = new StreamReader( dataPath + "\\Plugins\\git-uniteam-config.txt" );
+				StreamReader reader = new StreamReader( configPath );
 				username = reader.ReadLine().Trim();
 				password = reader.ReadLine().Trim();
 
@@ -32,9 +35,8 @@ namespace UniTEAM {
 				console.credentials = new Credentials();
 				console.credentials.Username = username.Trim();
 				console.credentials.Password = password.Trim();
-			} catch ( System.Exception e ) {
-				Debug.Log( e );
-			}
+
+			} catch ( System.Exception e ) { }
 		}
 
 		public void saveConfig( Console console ) {
@@ -42,14 +44,14 @@ namespace UniTEAM {
 
 			UnityThreadHelper.CreateThread( () => {
 				try {
-					info = new FileInfo( dataPath + "\\Plugins\\git-uniteam-config.txt" );
+					info = new FileInfo( configPath );
 					info.Delete();
 				} catch ( System.Exception e ) {
 					Debug.Log( e );
 				}
 
 				try {
-					StreamWriter writer = new StreamWriter( dataPath + "\\Plugins\\git-uniteam-config.txt" );
+					StreamWriter writer = new StreamWriter( configPath );
 
 					writer.WriteLine( username.Trim() );
 					writer.WriteLine( password.Trim() );
