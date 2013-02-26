@@ -36,7 +36,7 @@ namespace UniTEAM {
 				console.credentials.Username = username.Trim();
 				console.credentials.Password = password.Trim();
 
-			} catch ( System.Exception e ) { }
+			} catch ( System.Exception ) { }
 		}
 
 		public void saveConfig( Console console ) {

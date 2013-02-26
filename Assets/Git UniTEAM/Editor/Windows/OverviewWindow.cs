@@ -2,12 +2,12 @@ using UnityEngine;
 using LibGit2Sharp;
 
 namespace UniTEAM {
-	public static class OverviewWindow {
-		public static string selectedRemote;
-		public static bool isSelecting;
-		public static Rect rect;
+	public class OverviewWindow {
+		public string selectedRemote;
+		public bool isSelecting;
+		public Rect rect;
 
-		public static void draw( Console console, int id ) {
+		public void draw( Console console, int id ) {
 			GUILayout.Label( "Repository: " + console.repo.Info.WorkingDirectory );
 			GUILayout.Label( "Current branch: " + console.branch.Name );
 
@@ -24,7 +24,7 @@ namespace UniTEAM {
 			}
 		}
 
-		private static void getRemoteList( Console console ) {
+		private void getRemoteList( Console console ) {
 			GUILayout.BeginVertical( "Box" );
 			if ( GUILayout.Button( selectedRemote ) ) {
 				isSelecting = !isSelecting;

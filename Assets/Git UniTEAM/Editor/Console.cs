@@ -1,4 +1,6 @@
+using System;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEditor;
 using LibGit2Sharp;
@@ -19,9 +21,14 @@ namespace UniTEAM {
 		public Vector2 uncommitedChangesWindowScroll;
 		public Vector2 localStashedCommitsWindowScroll;
 
-		public UncommitedChangesWindow uncommitedChangesWindow;
 		public ChangesetViewWindow changesetViewWindow;
+		public HistoryWindow historyWindow;
+		public LocalStashedCommitsWindow localStashedCommitsWindow;
+		public OverviewWindow overviewWindow;
 		public SetupWindow setupWindow;
+		public UncommitedChangesWindow uncommitedChangesWindow;
+		public UpdatesOnServerWindow updatesOnServerWindow;
+
 		public Repository repo;
 		public Remote remote;
 		public Branch branch;
@@ -41,7 +48,7 @@ namespace UniTEAM {
 			setup
 		}
 
-		[MenuItem( "Team/Git UniTEAM Console" )]
+		[MenuItem( "Window/Git UniTEAM Console" )]
 		private static void init() {
 			EditorWindow.GetWindow( typeof( Console ), false, "UniTEAM" );
 		}
@@ -55,13 +62,13 @@ namespace UniTEAM {
 				remote = repo.Network.Remotes[ "origin" ];
 			} catch ( System.Exception e ) {
 				Debug.Log( "Repo not found: " + e );
-				setupWindow = new SetupWindow();
 				changeWindow( WindowSet.setup );
 				isConsoleReady = true;
 				return;
 			}
 
 			changeWindow( WindowSet.overview );
+
 			isConsoleReady = true;
 		}
 
@@ -76,7 +83,7 @@ namespace UniTEAM {
 		public void fetch() {
 			//commitsOnServer = repo.Commits.QueryBy( new Filter { Since = branch.TrackedBranch, Until = branch.Tip } );
 			//commitsInStash = repo.Commits.QueryBy( new Filter { Since = branch.Tip, Until = branch.TrackedBranch } );
-			//Debug.Log( "Fetch called..." );
+			Debug.Log( "Fetch called..." );
 			try {
 				FetchHelper.RemoteFetch( remote, credentials, this );
 
@@ -113,6 +120,16 @@ namespace UniTEAM {
 			}
 		}
 
+		private void createWindowInstances() {
+			changesetViewWindow = new ChangesetViewWindow();
+			historyWindow = new HistoryWindow();
+			localStashedCommitsWindow = new LocalStashedCommitsWindow();
+			overviewWindow = new OverviewWindow();
+			setupWindow = new SetupWindow();
+			uncommitedChangesWindow = new UncommitedChangesWindow();
+			updatesOnServerWindow = new UpdatesOnServerWindow();
+		}
+
 		private void OnGUI() {
 			if ( !isConsoleReady ) {
 				return;
@@ -122,9 +139,7 @@ namespace UniTEAM {
 				//# Create new instances so we can instantia the guiskin stuff once and only once
 				//# reducing the amount of function calls during ongui
 				if ( uncommitedChangesWindow == null ) {
-					uncommitedChangesWindow = new UncommitedChangesWindow();
-					changesetViewWindow = new ChangesetViewWindow();
-
+					createWindowInstances();
 					uncommitedChangesWindow.reset( repo.Diff.Compare(), this );
 				}
 
@@ -148,17 +163,17 @@ namespace UniTEAM {
 					fetch();
 				}
 
-				GUI.enabled = !LocalStashedCommitsWindow.isPushing;
-				if ( GUILayout.Button( ( !LocalStashedCommitsWindow.isPushing ) ? "Push Stashed Commits" : "Pushing, please wait..." ) ) {
+				GUI.enabled = !localStashedCommitsWindow.isPushing;
+				if ( GUILayout.Button( ( !localStashedCommitsWindow.isPushing ) ? "Push Stashed Commits" : "Pushing, please wait..." ) ) {
 					//# Don't send blank pushes....
 					if ( repo.Head.AheadBy == 0 ) {
 						return;
 					}
 
 					UnityThreadHelper.CreateThread( () => {
-						LocalStashedCommitsWindow.isPushing = true;
+						localStashedCommitsWindow.isPushing = true;
 						repo.Network.Push( remote, "refs/heads/master:refs/heads/master", OnPushStatusError, credentials );
-						LocalStashedCommitsWindow.isPushing = false;
+						localStashedCommitsWindow.isPushing = false;
 					} );
 				}
 				GUI.enabled = true;
@@ -171,52 +186,54 @@ namespace UniTEAM {
 				} else {
 					switch ( windowSet ) {
 						case WindowSet.overview:
-							GUILayout.Window( 0, OverviewWindow.rect, windowDelegate, "Overview" );
-							GUILayout.Window( 1, UncommitedChangesWindow.rect, windowDelegate, "Uncommited Changes" );
+							GUILayout.Window( 0, overviewWindow.rect, windowDelegate, "Overview" );
+							GUILayout.Window( 1, uncommitedChangesWindow.rect, windowDelegate, "Uncommited Changes" );
 							break;
 						case WindowSet.commits:
-							GUILayout.Window( 4, ChangesetViewWindow.rect, windowDelegate, "Changeset Viewer" );
-							GUILayout.Window( 2, UpdatesOnServerWindow.rect, windowDelegate, "Updates on Server [Commits Behind: " + repo.Head.BehindBy + "]" );
-							GUILayout.Window( 3, LocalStashedCommitsWindow.rect, windowDelegate, "Local Commit Stash [Commits Ahead: " + repo.Head.AheadBy + "]" );
+							GUILayout.Window( 4, changesetViewWindow.rect, windowDelegate, "Changeset Viewer" );
+							GUILayout.Window( 2, updatesOnServerWindow.rect, windowDelegate, "Updates on Server [Commits Behind: " + repo.Head.BehindBy + "]" );
+							GUILayout.Window( 3, localStashedCommitsWindow.rect, windowDelegate, "Local Commit Stash [Commits Ahead: " + repo.Head.AheadBy + "]" );
 							break;
 						case WindowSet.history:
-							GUILayout.Window( 4, ChangesetViewWindow.rect, windowDelegate, "Changeset Viewer" );
-							GUILayout.Window( 5, HistoryWindow.rect, windowDelegate, "Repository History" );
-							GUILayout.Window( 6, HistoryWindow.commitMessageRect, windowDelegate, "Commit Messages" );
+							GUILayout.Window( 4, changesetViewWindow.rect, windowDelegate, "Changeset Viewer" );
+							GUILayout.Window( 5, historyWindow.rect, windowDelegate, "Repository History" );
+							GUILayout.Window( 6, historyWindow.commitMessageRect, windowDelegate, "Commit Messages" );
 							break;
 						case WindowSet.setup:
-							GUILayout.Window( 7, SetupWindow.rect, windowDelegate, "Git UniTEAM Initial Setup" );
+							GUILayout.Window( 7, setupWindow.rect, windowDelegate, "Git UniTEAM Initial Setup" );
 							break;
 					}
 				}
 
 				EndWindows();
-			} catch {}
+			} catch ( System.Exception e ) {
+				Debug.Log( e );
+			}
 		}
 
 		//# Using this to pass the console reference. Trying not to leak stuff with static properties...
 		private void windowDelegate( int id ) {
 			switch ( id ) {
 				case 0:
-					OverviewWindow.draw( this, id );
+					overviewWindow.draw( this, id );
 					break;
 				case 1:
 					uncommitedChangesWindow.draw( this, id );
 					break;
 				case 2:
-					UpdatesOnServerWindow.draw( this, id );
+					updatesOnServerWindow.draw( this, id );
 					break;
 				case 3:
-					LocalStashedCommitsWindow.draw( this, id );
+					localStashedCommitsWindow.draw( this, id );
 					break;
 				case 4:
 					changesetViewWindow.draw( this, id );
 					break;
 				case 5:
-					HistoryWindow.draw( this, id );
+					historyWindow.draw( this, id );
 					break;
 				case 6:
-					HistoryWindow.commitMessageWindow( id );
+					historyWindow.commitMessageWindow( id );
 					break;
 				case 7:
 					setupWindow.draw( this, id );
@@ -228,10 +245,10 @@ namespace UniTEAM {
 			Debug.LogError( "Push errors: " + pushStatusErrors );
 		}
 
-		public static string currentError = string.Empty;
-		public static Rect currentErrorLocation;
+		public string currentError = string.Empty;
+		public Rect currentErrorLocation;
 
-		private static void errorWindow( int i ) {
+		private void errorWindow( int i ) {
 			GUILayout.Label( currentError );
 			if ( GUI.Button( new Rect( 0, currentErrorLocation.height - 20, currentErrorLocation.width, 20 ), "Close" ) ) {
 				currentError = string.Empty;
@@ -243,42 +260,42 @@ namespace UniTEAM {
 			float windowWidth = ( position.width / 2f ) - ( windowPadding * 2 );
 			float windowHeight = ( position.height ) - positionFromTop - ( windowPadding * 2 );
 
-			OverviewWindow.rect = new Rect(
+			overviewWindow.rect = new Rect(
 				windowPadding,
 				positionFromTop,
 				windowWidth,
 				windowHeight );
 
-			UncommitedChangesWindow.rect = new Rect(
+			uncommitedChangesWindow.rect = new Rect(
 				windowPadding + windowWidth + ( windowPadding * 2 ),
 				positionFromTop,
 				windowWidth,
 				windowHeight );
 
-			ChangesetViewWindow.rect = OverviewWindow.rect;
+			changesetViewWindow.rect = overviewWindow.rect;
 
-			HistoryWindow.rect = UncommitedChangesWindow.rect;
-			HistoryWindow.rect.height = ( windowHeight / 1.25f ) - ( windowPadding * 2 );
+			historyWindow.rect = uncommitedChangesWindow.rect;
+			historyWindow.rect.height = ( windowHeight / 1.25f ) - ( windowPadding * 2 );
 
-			HistoryWindow.commitMessageRect = new Rect(
-				HistoryWindow.rect.x,
-				HistoryWindow.rect.y + HistoryWindow.rect.height + ( Console.windowPadding * 2 ),
-				HistoryWindow.rect.width,
-				( HistoryWindow.rect.height / 4f ) );
+			historyWindow.commitMessageRect = new Rect(
+				historyWindow.rect.x,
+				historyWindow.rect.y + historyWindow.rect.height + ( windowPadding * 2 ),
+				historyWindow.rect.width,
+				( historyWindow.rect.height / 4f ) );
 
-			UpdatesOnServerWindow.rect = new Rect(
+			updatesOnServerWindow.rect = new Rect(
 				windowPadding + windowWidth + ( windowPadding * 2 ),
 				positionFromTop,
 				windowWidth,
 				windowHeight / 2 - ( windowPadding * 2 ) );
 
-			LocalStashedCommitsWindow.rect = new Rect(
+			localStashedCommitsWindow.rect = new Rect(
 				windowPadding + windowWidth + ( windowPadding * 2 ),
 				positionFromTop + ( windowHeight / 2 ) + ( windowPadding * 2 ),
 				windowWidth,
 				windowHeight / 2 - ( windowPadding * 2 ) );
 
-			SetupWindow.rect = new Rect(
+			setupWindow.rect = new Rect(
 				( position.width / 2 ) - ( windowWidth / 2 ),
 				positionFromTop,
 				windowWidth,

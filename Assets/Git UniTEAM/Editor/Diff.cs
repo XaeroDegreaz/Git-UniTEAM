@@ -3,12 +3,11 @@ using UnityEditor;
 
 namespace UniTEAM {
 	public class Diff : EditorWindow {
-		private static string patch;
+		private string patch;
 		private Vector2 rect;
 
 		public static void init( string diffPatch ) {
-			patch = diffPatch;
-			GetWindow<Diff>( "UniTEAM - Diff", typeof( Console ) );
+			GetWindow<Diff>( "UniTEAM - Diff", typeof( Console ) ).patch = diffPatch;
 		}
 
 		private void OnGUI() {

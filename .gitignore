@@ -21,4 +21,14 @@ Binary Builder/bin/Debug
 Game Build
 Binary Builder/git-uniteam-unitypackage/Assets/Plugins/LibGit2Sharp.dll
 Binary Builder/git-uniteam-unitypackage/Assets/Plugins/git2.dll
-Binary Builder/git-uniteam-unitypackage/Assets/AssetStoreTools/Editor/DroidSansMono.ttf
+Binary Builder/git-uniteam-unitypackage/Assets/AssetStoreTools
+Assets/Git UniTEAM/Editor/git-uniteam-config.txt
+
+Assets/Git UniTEAM/Editor/git-uniteam-config.txt.meta
+
+Binary Builder/git-uniteam-unitypackage/git-uniteam-unitypackage-csharp.sln
+
+Binary Builder/git-uniteam-unitypackage/git-uniteam-unitypackage-csharp.v11.suo
+
+Binary Builder/git-uniteam-unitypackage/git-uniteam-unitypackage.sln
+

@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace UniTEAM {
 	public class LocalStashedCommitsWindow {
-		public static Rect rect;
-		private static Vector2 scroll = Vector2.zero;
-		public static bool isPushing = false;
-		private static bool doesRequireFetch = false;
+		public Rect rect;
+		private Vector2 scroll = Vector2.zero;
+		public bool isPushing = false;
+		private bool doesRequireFetch = false;
 
-		public static void draw( Console console, int i ) {
+		public void draw( Console console, int i ) {
 			scroll = GUILayout.BeginScrollView( scroll );
 
 			GUI.enabled = !isPushing;
@@ -34,6 +34,6 @@ namespace UniTEAM {
 			GUILayout.EndScrollView();
 		}
 
-		private static void onCommitSelected( Commit commit ) {}
+		private void onCommitSelected( Commit commit ) {}
 	}
 }

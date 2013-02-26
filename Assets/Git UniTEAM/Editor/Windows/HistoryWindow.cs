@@ -6,14 +6,14 @@ using LibGit2Sharp;
 
 namespace UniTEAM {
 	public class HistoryWindow {
-		private static Vector2 scroll;
-		private static Vector2 commitMessageScroll = new Vector2();
-		private static string commitMessage = string.Empty;
-		public static Rect rect;
-		public static Rect commitMessageRect;
-		private static int commitsToShow;
+		private Vector2 scroll;
+		private Vector2 commitMessageScroll = new Vector2();
+		private string commitMessage = string.Empty;
+		public Rect rect;
+		public Rect commitMessageRect;
+		private int commitsToShow;
 
-		public static void draw( Console console, int id ) {
+		public void draw( Console console, int id ) {
 			GUILayout.BeginHorizontal();
 			GUILayout.Label( "# Commits (0 for all)", GUILayout.Width( 150 ) );
 			commitsToShow = EditorGUILayout.IntField( commitsToShow, GUILayout.Width( 50 ) );
@@ -32,7 +32,7 @@ namespace UniTEAM {
 			GUILayout.EndScrollView();
 		}
 
-		public static void commitMessageWindow( int id ) {
+		public void commitMessageWindow( int id ) {
 			GUIStyle skin = new GUIStyle( GUI.skin.textArea );
 			skin.normal.background = GUI.skin.label.normal.background;
 
@@ -41,7 +41,7 @@ namespace UniTEAM {
 			GUILayout.EndScrollView();
 		}
 
-		private static void onCommitSelected( Commit commit ) {
+		private void onCommitSelected( Commit commit ) {
 			commitMessage = commit.Message;
 		}
 	}

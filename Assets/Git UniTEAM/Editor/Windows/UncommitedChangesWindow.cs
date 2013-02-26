@@ -19,7 +19,7 @@ namespace UniTEAM {
 
 		public TreeChanges changes;
 		public IEnumerable<string> untracked;
-		public static Rect rect;
+		public Rect rect;
 		private Vector2 scroll;
 		private string commitText = string.Empty;
 		private TreeView treeView;
@@ -87,11 +87,11 @@ namespace UniTEAM {
 				stage = stage.Where( x => !string.IsNullOrEmpty( x ) ).ToArray();
 
 				if ( stage.Length == 0 ) {
-					Console.currentError = "You cannot commit without staged items.";
-					Console.currentErrorLocation = rect;
+					console.currentError = "You cannot commit without staged items.";
+					console.currentErrorLocation = rect;
 				} else if ( commitText.Equals( string.Empty ) ) {
-					Console.currentError = "Please enter a commit message.";
-					Console.currentErrorLocation = rect;
+					console.currentError = "Please enter a commit message.";
+					console.currentErrorLocation = rect;
 				} else {
 					console.repo.Index.Stage( stage );
 					console.repo.Commit( commitText, signature );

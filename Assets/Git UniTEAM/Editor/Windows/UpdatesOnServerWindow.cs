@@ -4,10 +4,10 @@ using LibGit2Sharp;
 
 namespace UniTEAM {
 	public class UpdatesOnServerWindow {
-		private static Vector2 scroll;
-		public static Rect rect;
+		private Vector2 scroll;
+		public Rect rect;
 
-		public static void draw( Console console, int id ) {
+		public void draw( Console console, int id ) {
 			scroll = GUILayout.BeginScrollView( scroll );
 
 			

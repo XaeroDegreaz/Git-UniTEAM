@@ -6,8 +6,8 @@ using System.Linq;
 
 namespace UniTEAM {
 	public class ChangesetViewWindow {
-		public static Rect rect;
-		private static Vector2 scroll = Vector2.zero;
+		public Rect rect;
+		private Vector2 scroll = Vector2.zero;
 		private Dictionary<string, bool> checkboxValues = new Dictionary<string, bool>();
 		private Dictionary<string, bool> foldoutValues = new Dictionary<string, bool>();
 		private TreeView treeView;
