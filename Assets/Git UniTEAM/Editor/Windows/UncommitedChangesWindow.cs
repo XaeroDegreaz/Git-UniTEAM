@@ -49,22 +49,26 @@ namespace UniTEAM {
 		}
 
 		public void draw( Console console, int i ) {
-			pathNodes.Clear();
-			treeView.nodes.Clear();
 
 			scroll = GUILayout.BeginScrollView( scroll );
 
-			changes = changes ?? console.repo.Diff.Compare();
+			try {
+				pathNodes.Clear();
+				treeView.nodes.Clear();
 
-			foreach ( TreeEntryChanges change in changes ) {
-				buildTreeView( change );
+				changes = changes ?? console.repo.Diff.Compare();
+
+				foreach ( TreeEntryChanges change in changes ) {
+					buildTreeView( change );
+				}
+
+				foreach ( string untrackedFile in untracked ) {
+					buildTreeView( untrackedFile );
+				}
+
+				drawTreeView( console );
 			}
-
-			foreach ( string untrackedFile in untracked ) {
-				buildTreeView( untrackedFile );
-			}
-
-			drawTreeView( console );
+			catch {}
 
 			GUILayout.EndScrollView();
 
