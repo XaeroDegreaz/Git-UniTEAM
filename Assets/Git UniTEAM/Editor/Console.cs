@@ -11,12 +11,10 @@ namespace UniTEAM {
 	public class Console : EditorWindow {
 		private const float REFETCH_FREQUENCY = 15f;
 		private const float COMPARE_FREQUENCY = 1f;
-		private const float SETUP_REDRAW_FREQUENCY = .1f;
 
 		private string lastCommitMessage;
 		private float nextRefetch = -1;
 		private float nextUncommittedChangesCompare = -1;
-		private float nextSetupRedraw = -1;
 		private bool isConsoleReady = false;
 
 		public const float WINDOW_PADDING = 5f;
