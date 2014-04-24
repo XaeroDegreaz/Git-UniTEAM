@@ -17,7 +17,7 @@ Features:
 
 Full merge support coming soon.
 
-* Mac OS X is not directly supported by the 'git2' plugin provided in this asset. HOWEVER you can freely build your own native application bundle from source HERE, and drop it in the 'Plugins' directory of this asset.
+* Mac OS X is not directly supported by the 'git2' plugin provided in this asset. HOWEVER you can freely build your own native application bundle from source <a href="https://github.com/libgit2/libgit2">HERE</a>, and drop it in the 'Plugins' directory of this asset.
 
 * This asset uses native code plugins -- Pro only.
 
