@@ -1,6 +1,8 @@
+<b>Feel free to send your pull requests, and I will add them to the <a href="https://www.assetstore.unity3d.com/#/content/7105">Asset Store</a> page after review (with full credit).</b>
+
 Git UniTEAM is a Unity Editor extension that lets you manage your Git versioned Unity project without 3rd party application requirements.
 
-As I no longer have time to properly update this asset to work with Unity 4.0+, it is now freely available (including source)
+As I no longer have time to properly update this asset to work with Unity 4.0+, it is now freely available.
 
 Features:
 * Commit / Push changes from within Unity!
@@ -19,4 +21,4 @@ Full merge support coming soon.
 
 * This asset uses native code plugins -- Pro only.
 
-Doby Digital Support Website
+<a href="http://www.dobydigital.com">Doby Digital Support Website</a>
