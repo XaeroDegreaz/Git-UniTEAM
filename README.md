@@ -2,6 +2,8 @@
 
 Git UniTEAM is a Unity Editor extension that lets you manage your Git versioned Unity project without 3rd party application requirements.
 
+C# Git library by <a href="https://github.com/libgit2/libgit2sharp">LibGit2Sharp</a>.
+
 As I no longer have time to properly update this asset to work with Unity 4.0+, it is now freely available.
 
 Features:
